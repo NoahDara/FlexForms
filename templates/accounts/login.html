@@ -1,0 +1,114 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from adminlte.io/themes/v3/pages/examples/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 08 May 2025 08:26:37 GMT -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | Log in</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min2167.css' %}">
+  <script data-cfasync="false" nonce="21d51f4b-a16b-473f-9a70-20b6504347bc">try{(function(w,d){!function(bj,bk,bl,bm){if(bj.zaraz)console.error("zaraz is loaded twice");else{bj[bl]=bj[bl]||{};bj[bl].executed=[];bj.zaraz={deferred:[],listeners:[]};bj.zaraz._v="5852";bj.zaraz._n="21d51f4b-a16b-473f-9a70-20b6504347bc";bj.zaraz.q=[];bj.zaraz._f=function(bn){return async function(){var bo=Array.prototype.slice.call(arguments);bj.zaraz.q.push({m:bn,a:bo})}};for(const bp of["track","set","debug"])bj.zaraz[bp]=bj.zaraz._f(bp);bj.zaraz.init=()=>{var bq=bk.getElementsByTagName(bm)[0],br=bk.createElement(bm),bs=bk.getElementsByTagName("title")[0];bs&&(bj[bl].t=bk.getElementsByTagName("title")[0].text);bj[bl].x=Math.random();bj[bl].w=bj.screen.width;bj[bl].h=bj.screen.height;bj[bl].j=bj.innerHeight;bj[bl].e=bj.innerWidth;bj[bl].l=bj.location.href;bj[bl].r=bk.referrer;bj[bl].k=bj.screen.colorDepth;bj[bl].n=bk.characterSet;bj[bl].o=(new Date).getTimezoneOffset();if(bj.dataLayer)for(const bt of Object.entries(Object.entries(dataLayer).reduce(((bu,bv)=>({...bu[1],...bv[1]})),{})))zaraz.set(bt[0],bt[1],{scope:"page"});bj[bl].q=[];for(;bj.zaraz.q.length;){const bw=bj.zaraz.q.shift();bj[bl].q.push(bw)}br.defer=!0;for(const bx of[localStorage,sessionStorage])Object.keys(bx||{}).filter((bz=>bz.startsWith("_zaraz_"))).forEach((by=>{try{bj[bl]["z_"+by.slice(7)]=JSON.parse(bx.getItem(by))}catch{bj[bl]["z_"+by.slice(7)]=bx.getItem(by)}}));br.referrerPolicy="origin";br.src="https://adminlte.io/cdn-cgi/zaraz/s.js?z="+btoa(encodeURIComponent(JSON.stringify(bj[bl])));bq.parentNode.insertBefore(br,bq)};["complete","interactive"].includes(bk.readyState)?zaraz.init():bj.addEventListener("DOMContentLoaded",zaraz.init)}}(w,d,"zarazData","script");window.zaraz._p=async bb=>new Promise((bc=>{if(bb){bb.e&&bb.e.forEach((bd=>{try{const be=d.querySelector("script[nonce]"),bf=be?.nonce||be?.getAttribute("nonce"),bg=d.createElement("script");bf&&(bg.nonce=bf);bg.innerHTML=bd;bg.onload=()=>{d.head.removeChild(bg)};d.head.appendChild(bg)}catch(bh){console.error(`Error executing script: ${bd}\n`,bh)}}));Promise.allSettled((bb.f||[]).map((bi=>fetch(bi[0],bi[1]))))}bc()}));zaraz._p({"e":["(function(w,d){})(window,document)"]});})(window,document)}catch(e){throw fetch("/cdn-cgi/zaraz/t"),e;};</script>
+    <style>
+      input[type="password"]::-ms-reveal,
+      input[type="password"]::-ms-clear,
+      input[type="password"]::-webkit-credentials-auto-fill-button,
+      input[type="password"]::-webkit-textfield-decoration-container {
+          display: none !important;
+      }
+      input[type="password"] {
+          text-security: disc;
+      }
+
+      .login-box-wide {
+        width: 480px;
+        margin: auto;
+      }
+      
+  </style>
+</head>
+<body class="hold-transition login-page">
+<div class="login-box login-box-wide">
+
+  <div class="login-logo">
+    <a href="../../index2.html"><b>KNOX</b>DEMO</a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Sign in to start your session</p>
+
+      <form action="{% url 'login' %}?next={{ request.GET.next }}" class="form-validate is-alter" method="POST" autocomplete="off">
+        {% csrf_token %}
+                                
+        <!-- Hidden dummy inputs to prevent autofill -->
+        <input type="text" name="fakeusernameremembered" style="display:none">
+        <input type="password" name="fakepasswordremembered" style="display:none">
+
+        <div class="input-group mb-3">
+          <input autocomplete="off" type="text" class="form-control form-control-lg" required name="username" placeholder="Enter your email address or username">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input id="password" type="password" class="form-control form-control-lg" required name="password"
+          placeholder="Enter your passcode" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" id="remember">
+              <label for="remember">
+                Remember Me
+              </label>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+
+      <p class="mb-1">
+        <a href="forgot-password.html">I forgot my password</a>
+      </p>
+      <p class="mb-0">
+        <a href="register.html" class="text-center">Register a new membership</a>
+      </p>
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+<!-- /.login-box -->
+<script>
+  localStorage.clear();
+</script>
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min2167.js' %}"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"93c78f170c5495ed","version":"2025.4.0-1-g37f21b1","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"2437d112162f4ec4b63c3ca0eb38fb20","b":1}' crossorigin="anonymous"></script>
+</body>
+</html>

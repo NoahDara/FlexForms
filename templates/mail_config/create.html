@@ -1,0 +1,72 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navigation %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">New Mail Configuration</h1>
+        </div>
+        <div class="col-sm-6 d-flex justify-content-end align-items-center">
+            <a href="{% url 'mail-config-index' %}" class="btn btn-outline-primary">
+              <i class="nav-icon fas fa-arrow-left"></i><span> Back</span>
+            </a>
+        </div>          
+      </div>      
+  </div>
+  <!-- /.container-fluid -->
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="content">
+  <div class="container-fluid">
+    <!-- Small boxes (Stat box) -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-4">
+                    {% for field in form %}
+                        {% if field.field.widget.input_type == "checkbox" %}
+                            <div class="col-12">
+                                <div class="form-group clearfix">
+                                    <div class="icheck-primary d-inline">
+                                        {{ field }}
+                                        <label for="{{ field.id_for_label }}">
+                                            {{ field.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    {{ field|as_crispy_field }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <div class="col-12">
+                        <div class="form-group d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                Save
+                            </button>
+                        </div>
+                    </div>     
+                </div>                
+            </form>            
+          </div>
+        </div>
+      </div>
+      <!-- right col -->
+    </div>
+    <!-- /.row (main row) -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+{% endblock %}

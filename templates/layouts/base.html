@@ -1,0 +1,130 @@
+{% load static %}
+
+
+<!doctype html>
+<!doctype html>
+<html lang="zxx" class="js">
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Softnio" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description"
+      content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers."/>
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <title>Demo 6 | {% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'assets/css/dashlite9b70.css' %}?ver=3.3.0" />
+    <link id="skin-default" rel="stylesheet" href="{% static 'assets/css/theme9b70.css' %}?ver=3.3.0"/>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-91615293-4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "UA-91615293-4");
+    </script>
+  </head>
+  <body class="nk-body npc-invest bg-lighter">
+    <div class="nk-app-root">
+      <div class="nk-wrap">
+
+        {% include "./header.html" %}
+
+        <div class="nk-content nk-content-fluid">
+          <div class="container-xl wide-xl">
+            <div class="nk-content-inner">
+              {% include "./messages.html" %}
+              <div class="nk-content-body">
+                <div class="nk-block-head nk-block-head-sm">
+                  <div class="nk-block-between">
+                    <div class="nk-block-head-content">
+                      <h3 class="nk-block-title page-title">
+                        {% block page_title %}{% endblock %}
+                      </h3>
+                      <div class="nk-block-des text-soft">
+                        <p>{% block page_sub_title %}{% endblock %}</p>
+                      </div>
+                    </div>
+                    <div class="nk-block-head-content">
+                      <div class="toggle-wrap nk-block-tools-toggle">
+                        <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
+                          <em class="icon ni ni-more-v"></em>
+                        </a>
+                        <div class="toggle-expand-content" data-content="pageMenu"  >
+                          <ul class="nk-block-tools g-3">
+                            {% block actions %}
+                            <li>
+                              <a href="#" class="btn btn-white btn-dim btn-outline-primary">
+                                <em class="icon ni ni-download-cloud"></em>
+                                <span>Export</span>
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" class="btn btn-white btn-dim btn-outline-primary">
+                                <em class="icon ni ni-reports">
+                                </em><span>Reports</span>
+                              </a>
+                            </li>
+                            <li class="nk-block-tools-opt">
+                              <div class="drodown">
+                                <a href="#" class="dropdown-toggle btn btn-icon btn-primary" data-bs-toggle="dropdown">
+                                  <em class="icon ni ni-plus"></em>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                  <ul class="link-list-opt no-bdr">
+                                    <li>
+                                      <a href="#">
+                                        <em class="icon ni ni-user-add-fill"></em>
+                                        <span>Add User</span>
+                                        </a >
+                                    </li>
+                                    <li>
+                                      <a href="#">
+                                        <em class="icon ni ni-coin-alt-fill"></em>
+                                        <span>Add Order</span>
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                            </li>
+                            {% endblock %}
+
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="nk-block">
+                  <div class="row g-gs">
+                    {% block content %}{% endblock %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% include "./footer.html" %}
+
+      </div>
+    </div>
+
+    {% include "./toolbar.html" %}
+
+    <script src="{% static 'assets/js/bundle9b70.js' %}?ver=3.3.0"></script>
+    <script src="{% static 'assets/js/scripts9b70.js' %}?ver=3.3.0"></script>
+    <script src="{% static 'assets/js/demo-settings9b70.js' %}?ver=3.3.0"></script>
+    <script src="{% static 'assets/js/charts/gd-invest9b70.js' %}?ver=3.3.0"></script>
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516"
+      integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg=="
+      data-cf-beacon='{"version":"2024.11.0","token":"7a4ffed5b47648edbfab04aa3dbe6a03","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}'
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
+
