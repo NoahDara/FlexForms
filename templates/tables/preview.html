@@ -1,0 +1,30 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Table Preview— {{ table }}{% endblock title %}
+
+{% block page_title %}{{ table}}{% endblock %}
+{% block page_sub_title %}Config Your Table Settings Here{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'table-index' %}" class="btn btn-primary">
+    <em class="icon ni ni-curve-down-left"></em>
+    <span>Back</span>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+<!-- Columns Table -->
+{% include "tables/columns/index.html" %}
+
+<!-- Rows Table -->
+{% include "tables/rows/index.html" %}
+
+<!-- Cells Table -->
+{% include "tables/cells/index.html" %}
+
+
+
+{% endblock %}

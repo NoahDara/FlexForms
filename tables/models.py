@@ -1,6 +1,6 @@
 from django.db import models
 from helpers.models import BaseModel
-
+from django.core.exceptions import ValidationError
  
  
 class Table(BaseModel):
@@ -55,7 +55,7 @@ class TableColumn(BaseModel):
  
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name="columns",  help_text="The table this column belongs to",)
     header = models.CharField(max_length=255, help_text="The column header label displayed to the user e.g. 'Company Name'",)
-    column_type = models.ForeignKey("data.DataType", on_delete=models.CASCADE, help_text="The data type for cells in this column", related_name="table_columns")
+    data_type = models.ForeignKey("data.DataType", on_delete=models.CASCADE, help_text="The data type for cells in this column", related_name="table_columns")
     order = models.PositiveIntegerField(default=0,
         help_text="Display order of this column within the table (left to right)",)
  
@@ -63,12 +63,32 @@ class TableColumn(BaseModel):
  
     data_source = models.ForeignKey("data.DataSource", on_delete=models.SET_NULL, null=True, blank=True,
         related_name="table_columns", help_text="Required when column_type is dropdown or radio", )
+    
+    RELATIONAL_DATA_TYPES = {"foreign_key", "many_to_many"}
  
     class Meta(BaseModel.Meta):
         ordering = ["order"]
  
     def __str__(self):
         return f"{self.table.name} — {self.header}"
+    
+    def clean(self):
+        super().clean()
+        if (
+            hasattr(self, "data_type")
+            and self.data_type.code in self.RELATIONAL_DATA_TYPES
+            and not self.data_source
+        ):
+            raise ValidationError({
+                "data_source": (
+                    f"A data source is required when the data type is "
+                    f"'{self.data_type.name}'. Please link a data source to provide selectable options."
+                )
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
     
     
 class TableRow(BaseModel):
@@ -92,7 +112,7 @@ class TableRow(BaseModel):
         return f"{self.table.name} — {self.row_label}"
     
     
-class TableCellConfig(BaseModel):
+class TableCell(BaseModel):
     """
     Defines the configuration for a specific cell in a FIXED_GRID table,
     identified by its row and column intersection.
@@ -107,7 +127,7 @@ class TableCellConfig(BaseModel):
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name="cell_configs", help_text="The fixed grid table this cell config belongs to",)
     row = models.ForeignKey(TableRow,  on_delete=models.CASCADE, related_name="cell_configs", help_text="The row this cell sits in",)
     column = models.ForeignKey(TableColumn, on_delete=models.CASCADE, related_name="cell_configs", help_text="The column this cell sits in",)
-    cell_type = models.ForeignKey("data.DataType", related_name="cell_configs", on_delete=models.CASCADE,
+    data_type = models.ForeignKey("data.DataType", related_name="cell_configs", on_delete=models.CASCADE,
         help_text=(
             "Optional override for the cell data type. "
             "If blank the column type is used."
@@ -116,9 +136,30 @@ class TableCellConfig(BaseModel):
  
     data_source = models.ForeignKey("data.DataSource", on_delete=models.SET_NULL, null=True, blank=True,
         related_name="cell_configs", help_text="Required when cell_type overrides to dropdown or radio",)
+    
+    RELATIONAL_DATA_TYPES = {"foreign_key", "many_to_many"}
  
     class Meta(BaseModel.Meta):
         unique_together = [("table", "row", "column")]
  
     def __str__(self):
         return f"{self.table.name} — row: {self.row.row_label} / col: {self.column.header}"
+    
+
+    def clean(self):
+        super().clean()
+        if (
+            hasattr(self, "data_type")
+            and self.data_type.code in self.RELATIONAL_DATA_TYPES
+            and not self.data_source
+        ):
+            raise ValidationError({
+                "data_source": (
+                    f"A data source is required when the data type is "
+                    f"'{self.data_type.name}'. Please link a data source to provide selectable options."
+                )
+            })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

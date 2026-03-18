@@ -84,7 +84,7 @@ flexforms/
 │   └── migrations/
 │
 ├── tables/
-│   ├── models.py               # TableConfig, TableColumn, TableRow, TableCellConfig
+│   ├── models.py               # TableConfig, TableColumn, TableRow, TableCell
 │   ├── admin.py
 │   ├── apps.py
 │   └── migrations/
@@ -186,7 +186,7 @@ A named row label inside a `fixed_grid` `TableConfig`. Only used when `table_typ
 | `row_label` | CharField | Row label e.g. `"Service Quality"` |
 | `order` | PositiveIntegerField | Top-to-bottom display order |
 
-#### `TableCellConfig`
+#### `TableCell`
 
 Per-cell data type override for a `fixed_grid` table. By default a cell inherits its type from the column. This model allows overriding at the individual cell level.
 

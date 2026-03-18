@@ -1,12 +1,12 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from .models import Table, TableColumn, TableRow, TableCellConfig
+from .models import Table, TableColumn, TableRow, TableCell
 
 
 class TableColumnInline(admin.TabularInline):
     model = TableColumn
     extra = 1
-    fields = ('header', 'column_type', 'order', 'is_required', 'data_source')
+    fields = ('header', 'data_type', 'order', 'is_required', 'data_source')
     ordering = ('order',)
 
 
@@ -17,10 +17,10 @@ class TableRowInline(admin.TabularInline):
     ordering = ('order',)
 
 
-class TableCellConfigInline(admin.TabularInline):
-    model = TableCellConfig
+class TableCellInline(admin.TabularInline):
+    model = TableCell
     extra = 0
-    fields = ('row', 'column', 'cell_type', 'data_source')
+    fields = ('row', 'column', 'data_type', 'data_source')
 
 
 @admin.register(Table)
@@ -46,14 +46,14 @@ class TableAdmin(SimpleHistoryAdmin):
 
 @admin.register(TableColumn)
 class TableColumnAdmin(SimpleHistoryAdmin):
-    list_display = ('header', 'table', 'column_type', 'order', 'is_required', 'data_source', 'is_active')
-    list_filter = ('is_required', 'is_active', 'column_type')
+    list_display = ('header', 'table', 'data_type', 'order', 'is_required', 'data_source', 'is_active')
+    list_filter = ('is_required', 'is_active', 'data_type')
     search_fields = ('header', 'table__name')
     readonly_fields = ('uid', 'created', 'updated')
-    autocomplete_fields = ('table', 'column_type', 'data_source')
+    autocomplete_fields = ('table', 'data_type', 'data_source')
     fieldsets = (
         (None, {
-            'fields': ('uid', 'table', 'header', 'column_type', 'order', 'is_required', 'data_source')
+            'fields': ('uid', 'table', 'header', 'data_type', 'order', 'is_required', 'data_source')
         }),
         ('Status', {
             'fields': ('is_active', 'is_deleted')
@@ -86,16 +86,16 @@ class TableRowAdmin(SimpleHistoryAdmin):
     )
 
 
-@admin.register(TableCellConfig)
-class TableCellConfigAdmin(SimpleHistoryAdmin):
-    list_display = ('table', 'row', 'column', 'cell_type', 'data_source', 'is_active')
-    list_filter = ('is_active', 'cell_type')
+@admin.register(TableCell)
+class TableCellAdmin(SimpleHistoryAdmin):
+    list_display = ('table', 'row', 'column', 'data_type', 'data_source', 'is_active')
+    list_filter = ('is_active', 'data_type')
     search_fields = ('table__name', 'row__row_label', 'column__header')
     readonly_fields = ('uid', 'created', 'updated')
-    autocomplete_fields = ('table', 'row', 'column', 'cell_type', 'data_source')
+    autocomplete_fields = ('table', 'row', 'column', 'data_type', 'data_source')
     fieldsets = (
         (None, {
-            'fields': ('uid', 'table', 'row', 'column', 'cell_type', 'data_source')
+            'fields': ('uid', 'table', 'row', 'column', 'data_type', 'data_source')
         }),
         ('Status', {
             'fields': ('is_active', 'is_deleted')

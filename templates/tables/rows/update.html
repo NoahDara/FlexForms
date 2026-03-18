@@ -1,0 +1,37 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Update Row Details{% endblock title %}
+
+{% block page_title %}Update Row Details{% endblock %}
+{% block page_sub_title %}{{ row }}{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'table-preview' row.table.uid %}" class="btn btn-primary">
+    <em class="icon ni ni-curve-down-left"></em>
+    <span>Back</span>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="card card-bordered card-preview">
+  <div class="card-inner">
+    <div class="preview-block">
+      <span class="preview-title-lg overline-title">Update Row Details Form</span>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.get_error_html|safe }}
+
+        <div class="row gy-4">
+          {{ form.render_form|safe }}
+        </div>
+        <div class="form-group mt-3">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

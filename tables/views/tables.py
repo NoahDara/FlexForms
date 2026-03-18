@@ -4,7 +4,7 @@ from ..models import Table
 from helpers.views import SafeListView, SafeDeleteView, SafeUpdateView, ToggleActiveView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, DetailView
-from ..forms import TableForm
+from ..forms import TableColumnForm, TableForm, TableRowForm, TableCellForm
 from helpers.mixins import UIDObjectMixin
 
 # Create your views here
@@ -26,6 +26,13 @@ class TablePreviewView(LoginRequiredMixin, UIDObjectMixin, DetailView):
     model = Table
     template_name = "tables/preview.html"
     context_object_name = 'table'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['column_form'] = TableColumnForm()
+        context['row_form'] = TableRowForm()
+        context['cell_form'] = TableCellForm()
+        return context
     
 class TableUpdateView(LoginRequiredMixin, SafeUpdateView):
     model = Table
