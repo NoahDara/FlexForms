@@ -3,8 +3,8 @@ from helpers.models import BaseModel
 
 # Create your models here.
 
-class DataType(BaseModel):
-    code = models.CharField(max_length=100, unique=True)
+class DataType(models.Model):
+    code = models.CharField(max_length=100, unique=True, primary_key=True)
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=255, null=True, blank=True)
     

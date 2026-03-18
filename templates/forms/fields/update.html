@@ -1,0 +1,332 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Edit Field — {{ field.label }}{% endblock title %}
+
+{% block page_title %}{{ field.label }}{% endblock %}
+{% block page_sub_title %}
+  Editing field on <span class="text-primary">{{ form_instance.title }}</span>
+
+  {% if field.is_active %}
+    <span class="badge bg-success">Active</span>
+  {% else %}
+    <span class="badge bg-secondary">Inactive</span>
+  {% endif %}
+
+  {% if field.is_required %}
+    <span class="badge bg-danger">Required</span>
+  {% else %}
+    <span class="badge bg-light text-muted">Optional</span>
+  {% endif %}
+{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'form-field-create' form_instance.uid %}" class="btn btn-primary">
+    <em class="icon ni ni-curve-down-left"></em>
+    <span>Back to Fields</span>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+<!-- Existing Fields Table (View Only) -->
+<div class="col-12">
+  <div class="card card-bordered">
+
+    <div class="card-inner border-bottom">
+      <div class="card-title-group">
+        <div class="card-title">
+          <h6 class="title">
+            <em class="icon ni ni-list me-1 text-primary"></em>
+            Fields for <span class="text-primary">{{ form_instance }}</span>
+          </h6>
+          {% if form_instance.description %}
+            <p class="text-soft mt-1 mb-0">{{ form_instance.description }}</p>
+          {% endif %}
+        </div>
+        <div class="card-tools d-flex align-items-center gap-2">
+          <span class="badge bg-outline-primary">
+            {{ form_instance.fields.count }} field{{ form_instance.fields.count|pluralize }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-inner p-0">
+
+      {% if form_instance.sections.exists %}
+
+        {% for section in form_instance.sections.all %}
+        <!-- Section Block -->
+        <div class="section-block">
+          <!-- Section Header -->
+          <div class="px-4 py-3 border-bottom" style="background: #f5f6fa;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <h6 class="mb-0 fw-bold text-dark">
+                  <em class="icon ni ni-layers me-1 text-primary"></em>
+                  {{ section.name }}
+                </h6>
+                {% if section.description %}
+                  <p class="text-muted small mb-0 mt-1">{{ section.description }}</p>
+                {% endif %}
+              </div>
+              <span class="badge bg-outline-primary">
+                {{ section.fields.count }} field{{ section.fields.count|pluralize }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Section Fields Table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" style="width: 40px;">#</th>
+                  <th scope="col">Label</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Data Source</th>
+                  <th scope="col">Required</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in section.fields.all %}
+                <tr {% if f.uid == field.uid %}class="table-primary"{% endif %}>
+                  <td class="text-muted align-middle">{{ f.order }}</td>
+                  <td class="fw-bold align-middle">
+                    {{ f.label }}
+                    {% if f.uid == field.uid %}
+                      <span class="badge bg-primary ms-1">Editing</span>
+                    {% endif %}
+                    {% if f.help_text %}
+                      <small class="d-block text-muted fw-normal">{{ f.help_text|truncatechars:60 }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    <span class="badge bg-outline-secondary">{{ f.data_type }}</span>
+                  </td>
+                  <td class="text-muted align-middle">
+                    {% if f.data_source %}
+                      <span class="badge bg-outline-info">{{ f.data_source.name }}</span>
+                    {% elif f.table %}
+                      <span class="badge bg-outline-warning">{{ f.table }}</span>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    {% if f.is_required %}
+                      <span class="badge bg-danger">Required</span>
+                    {% else %}
+                      <span class="badge bg-light text-muted">Optional</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    {% if f.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-3 text-muted">
+                    <em class="icon ni ni-inbox d-block mb-1"></em>
+                    No fields in this section yet.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- End Section Block -->
+        {% endfor %}
+
+        <!-- Ungrouped Fields -->
+        {% if ungrouped_fields %}
+        <div class="section-block">
+          <div class="px-4 py-3 border-bottom" style="background: #f5f6fa;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <h6 class="mb-0 fw-bold text-muted">
+                  <em class="icon ni ni-layer me-1"></em>
+                  Ungrouped Fields
+                </h6>
+                <p class="text-muted small mb-0 mt-1">Fields not assigned to any section</p>
+              </div>
+              <span class="badge bg-outline-secondary">
+                {{ ungrouped_fields.count }} field{{ ungrouped_fields.count|pluralize }}
+              </span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" style="width: 40px;">#</th>
+                  <th scope="col">Label</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Data Source</th>
+                  <th scope="col">Required</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in ungrouped_fields %}
+                <tr {% if f.uid == field.uid %}class="table-primary"{% endif %}>
+                  <td class="text-muted align-middle">{{ f.order }}</td>
+                  <td class="fw-bold align-middle">
+                    {{ f.label }}
+                    {% if f.uid == field.uid %}
+                      <span class="badge bg-primary ms-1">Editing</span>
+                    {% endif %}
+                    {% if f.help_text %}
+                      <small class="d-block text-muted fw-normal">{{ f.help_text|truncatechars:60 }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    <span class="badge bg-outline-secondary">{{ f.data_type }}</span>
+                  </td>
+                  <td class="text-muted align-middle">
+                    {% if f.data_source %}
+                      <span class="badge bg-outline-info">{{ f.data_source.name }}</span>
+                    {% elif f.table %}
+                      <span class="badge bg-outline-warning">{{ f.table }}</span>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    {% if f.is_required %}
+                      <span class="badge bg-danger">Required</span>
+                    {% else %}
+                      <span class="badge bg-light text-muted">Optional</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle">
+                    {% if f.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-3 text-muted">No ungrouped fields.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+      {% else %}
+
+        <!-- No sections — flat table -->
+        <div class="table-responsive">
+          <table class="table table-striped table-hover table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="width: 40px;">#</th>
+                <th scope="col">Label</th>
+                <th scope="col">Type</th>
+                <th scope="col">Data Source</th>
+                <th scope="col">Required</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in form_instance.fields.all %}
+              <tr {% if f.uid == field.uid %}class="table-primary"{% endif %}>
+                <td class="text-muted align-middle">{{ f.order }}</td>
+                <td class="fw-bold align-middle">
+                  {{ f.label }}
+                  {% if f.uid == field.uid %}
+                    <span class="badge bg-primary ms-1">Editing</span>
+                  {% endif %}
+                  {% if f.help_text %}
+                    <small class="d-block text-muted fw-normal">{{ f.help_text|truncatechars:60 }}</small>
+                  {% endif %}
+                </td>
+                <td class="align-middle">
+                  <span class="badge bg-outline-secondary">{{ f.data_type }}</span>
+                </td>
+                <td class="text-muted align-middle">
+                  {% if f.data_source %}
+                    <span class="badge bg-outline-info">{{ f.data_source.name }}</span>
+                  {% elif f.table %}
+                    <span class="badge bg-outline-warning">{{ f.table }}</span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="align-middle">
+                  {% if f.is_required %}
+                    <span class="badge bg-danger">Required</span>
+                  {% else %}
+                    <span class="badge bg-light text-muted">Optional</span>
+                  {% endif %}
+                </td>
+                <td class="align-middle">
+                  {% if f.is_active %}
+                    <span class="badge bg-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                  <em class="icon ni ni-inbox fs-3 d-block mb-1"></em>
+                  No fields added yet.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      {% endif %}
+
+    </div><!-- /.card-inner -->
+  </div>
+</div>
+
+<!-- Edit Field Form -->
+<div class="col-12">
+  <div class="card card-bordered card-preview">
+    <div class="card-inner">
+      <div class="preview-block">
+        <span class="preview-title-lg overline-title">Edit Field</span>
+        <form method="post" enctype="multipart/form-data" class="mt-3">
+          {% csrf_token %}
+
+          {{ form.get_error_html|safe }}
+
+          <div class="row gy-4">
+            {{ form.render_form|safe }}
+          </div>
+
+          <div class="form-group mt-3 d-flex align-items-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <em class="icon ni ni-save"></em>
+              <span>Save Changes</span>
+            </button>
+            <a href="{% url 'form-field-create' form_instance.uid %}" class="btn btn-outline-light">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

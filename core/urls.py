@@ -14,6 +14,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),
     path('configuration/', include('config.urls')),
     path('data/', include('data.urls')),
+    path('forms/', include('forms.urls')),
     path('tables/', include('tables.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

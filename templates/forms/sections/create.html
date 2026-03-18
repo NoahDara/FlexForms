@@ -1,0 +1,62 @@
+<!-- Add Form Section Modal -->
+<div class="modal fade" id="addFormSectionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Add Section to {{ form_instance }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form method="post" action="{% url 'form-section-create' form_instance.uid %}">
+        {% csrf_token %}
+
+        <div class="modal-body">
+          {{ section_form.get_error_html|safe }}
+          <div class="row gy-4">
+            {{ section_form.render_form|safe }}
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Section</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Auto-reopen modal if section form has errors -->
+{% if section_form.errors %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var modal = new bootstrap.Modal(document.getElementById('addFormSectionModal'));
+    modal.show();
+  });
+</script>
+{% endif %}
+
+<!-- Reinitialize select2 inside modal on show -->
+{% comment %} <script>
+  document.getElementById('addFormSectionModal').addEventListener('shown.bs.modal', function () {
+    if (typeof $ === 'undefined' || !$.fn.select2) return;
+
+    const $modal = $(this);
+
+    $modal.find('.js-select2').each(function () {
+      const $select = $(this);
+      if ($select.hasClass('select2-hidden-accessible')) {
+        $select.select2('destroy');
+      }
+      $select.select2({
+        width: '100%',
+        dropdownParent: $modal,
+        placeholder: $select.data('placeholder') || 'Select an option...',
+        allowClear: $select.data('allow-clear') === 'true',
+      });
+    });
+  });
+</script> {% endcomment %}
