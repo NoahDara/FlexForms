@@ -1,13 +1,13 @@
 {% extends 'layouts/base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Update Data Source{% endblock title %}
+{% block title %}Create Table{% endblock title %}
 
-{% block page_title %}Update Data Source{% endblock %}
-{% block page_sub_title %}Add a new data source{% endblock %}
+{% block page_title %}Create Table{% endblock %}
+{% block page_sub_title %}Add a new table{% endblock %}
 
 {% block actions %}
 <li class="nk-block-tools-opt">
-  <a href="{% url 'data-source-index' %}" class="btn btn-primary">
+  <a href="{% url 'table-index' %}" class="btn btn-primary">
     <em class="icon ni ni-curve-down-left"></em>
     <span>Back</span>
   </a>
@@ -18,7 +18,7 @@
 <div class="card card-bordered card-preview">
   <div class="card-inner">
     <div class="preview-block">
-      <span class="preview-title-lg overline-title">Update Data Source Form</span>
+      <span class="preview-title-lg overline-title">Table Create Form</span>
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 

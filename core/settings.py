@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'data.apps.DataConfig',
     'config.apps.ConfigConfig',
+    'tables.apps.TablesConfig',
     
     #3rd party apps
     "debug_toolbar",
