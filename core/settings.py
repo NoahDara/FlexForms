@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'dashboard.apps.DashboardConfig',
     'data.apps.DataConfig',
+    'forms.apps.FormsConfig',
     'config.apps.ConfigConfig',
     'tables.apps.TablesConfig',
     

@@ -3,6 +3,7 @@ from .mail_config import (
     MailConfigCreateView,
     MailConfigUpdateView,
     MailConfigDeleteView,
-    MailConfigStatusToggleTemplateView,
-    TestMailConfigConnection
+    MailConfigToggleActiveView,
+    TestMailConfigConnection,
+    MailConfigDetailView
 )

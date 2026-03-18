@@ -3,16 +3,18 @@ from .views import (
     MailConfigListView,
     MailConfigCreateView,
     MailConfigUpdateView,
+    MailConfigDetailView,
     MailConfigDeleteView,
-    MailConfigStatusToggleTemplateView,
+    MailConfigToggleActiveView,
     TestMailConfigConnection,
 )
 
 urlpatterns = [
     path('mail/index/', MailConfigListView.as_view(), name='mail-config-index'),
     path('mail/create/', MailConfigCreateView.as_view(), name='mail-config-create'),
-    path('mail/<int:pk>/update/', MailConfigUpdateView.as_view(), name='mail-config-update'),
-    path('mail/<int:pk>/delete/', MailConfigDeleteView.as_view(), name='mail-config-delete'),
-    path('mail/<int:pk>/toggle-status/', MailConfigStatusToggleTemplateView.as_view(), name='mail-config-toggle-status'),
-    path('mail/<int:pk>/test_connection/', TestMailConfigConnection.as_view(), name='mail-config-test-connection'),
+    path('mail/<uuid:uid>/details/', MailConfigDetailView.as_view(), name="mail-config-detail"),
+    path('mail/<uuid:uid>/update/', MailConfigUpdateView.as_view(), name='mail-config-update'),
+    path('mail/<uuid:uid>/delete/', MailConfigDeleteView.as_view(), name='mail-config-delete'),
+    path("config/<uuid:uid>/toggle/active", MailConfigToggleActiveView.as_view(), name="mail-config-toggle-active"),
+    path('mail/<uuid:uid>/test_connection/', TestMailConfigConnection.as_view(), name='mail-config-test-connection'),
 ]

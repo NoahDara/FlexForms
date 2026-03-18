@@ -11,16 +11,17 @@ from django.views.generic import (
 from django.core.mail import get_connection
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
-
+from helpers.mixins import UIDObjectMixin
+from helpers.views import ToggleActiveView, SafeDeleteView, SafeListView
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from ..forms import MailConfigForm
 from ..models import MailConfig
 
 
-class MailConfigListView(LoginRequiredMixin, ListView):
+class MailConfigListView(LoginRequiredMixin, SafeListView):
     model = MailConfig
     context_object_name = "mail_configs"
     template_name = "mail_config/index.html"
@@ -36,7 +37,7 @@ class MailConfigCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return reverse("mail-config-index")
 
 
-class MailConfigUpdateView(LoginRequiredMixin,  SuccessMessageMixin, UpdateView):
+class MailConfigUpdateView(LoginRequiredMixin, UIDObjectMixin,  SuccessMessageMixin, UpdateView):
     model = MailConfig
     context_object_name = "mail_config"
     template_name = "mail_config/update.html"
@@ -45,28 +46,26 @@ class MailConfigUpdateView(LoginRequiredMixin,  SuccessMessageMixin, UpdateView)
 
     def get_success_url(self):
         return reverse("mail-config-index")
-
-
-class MailConfigDeleteView(LoginRequiredMixin, TemplateView):
-    def get(self, request, pk, *args, **kwargs):
-        obj = MailConfig.objects.get(pk=pk)  
-        obj.delete()
-        messages.success(request, f"{obj} deleted successfully")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     
-class MailConfigStatusToggleTemplateView(LoginRequiredMixin, TemplateView):
-    def get(self, request, pk, *args, **kwargs):
-        obj = MailConfig.objects.get(pk=pk)  
-        obj.is_active = not obj.is_active
-        obj.save()
-        messages.success(request, f"{obj} status updated successfully")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+class MailConfigDetailView(LoginRequiredMixin, DetailView):
+    model = MailConfig
+    context_object_name = "mail_config"
+    template_name = "mail_config/details.html"
 
 
-class TestMailConfigConnection(LoginRequiredMixin, TemplateView):
-    def get(self, request, pk, **kwargs):
+class MailConfigDeleteView(LoginRequiredMixin, SafeDeleteView):
+    model = MailConfig
+    success_url = reverse_lazy("mail-config-index")
+    
+class MailConfigToggleActiveView(LoginRequiredMixin, ToggleActiveView):
+    model = MailConfig
+    success_url = reverse_lazy("mail-config-index")
+
+class TestMailConfigConnection(LoginRequiredMixin, UIDObjectMixin, TemplateView):
+    model = MailConfig
+    def get(self, request, **kwargs):
         try:
-            obj = MailConfig.objects.get(pk=pk)
+            obj = self.get_object()
             connection = get_connection(
                 backend=obj.email_backend,
                 host=obj.email_host,
@@ -78,7 +77,7 @@ class TestMailConfigConnection(LoginRequiredMixin, TemplateView):
             )
             connection.open()  
             connection.close()
-            messages.success(request, "Email connection test successful.")
+            messages.success(request, "Email connection successful!")
         except Exception as e:
             messages.error(request, f"Email connection failed: {e}")
 
