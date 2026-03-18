@@ -12,7 +12,7 @@
     <meta name="description"
       content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers."/>
     <link rel="shortcut icon" href="images/favicon.png" />
-    <title>Demo 6 | {% block title %}{% endblock title %}</title>
+    <title>Daarah Tech Forms| {% block title %}{% endblock title %}</title>
     <link rel="stylesheet" href="{% static 'assets/css/dashlite9b70.css' %}?ver=3.3.0" />
     <link id="skin-default" rel="stylesheet" href="{% static 'assets/css/theme9b70.css' %}?ver=3.3.0"/>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-91615293-4"></script>
@@ -32,7 +32,7 @@
         {% include "./header.html" %}
 
         <div class="nk-content nk-content-fluid">
-          <div class="container-xl wide-xl">
+          <div class="container-xxl wide-xxl">
             <div class="nk-content-inner">
               {% include "./messages.html" %}
               <div class="nk-content-body">
@@ -114,17 +114,7 @@
 
     {% include "./toolbar.html" %}
 
-    <script src="{% static 'assets/js/bundle9b70.js' %}?ver=3.3.0"></script>
-    <script src="{% static 'assets/js/scripts9b70.js' %}?ver=3.3.0"></script>
-    <script src="{% static 'assets/js/demo-settings9b70.js' %}?ver=3.3.0"></script>
-    <script src="{% static 'assets/js/charts/gd-invest9b70.js' %}?ver=3.3.0"></script>
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516"
-      integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg=="
-      data-cf-beacon='{"version":"2024.11.0","token":"7a4ffed5b47648edbfab04aa3dbe6a03","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}'
-      crossorigin="anonymous"
-    ></script>
+    {% include "./scripts.html" %}
   </body>
 </html>
 

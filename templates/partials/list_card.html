@@ -1,0 +1,439 @@
+{% comment %}
+=============================================================================
+  partials/list_card.html
+=============================================================================
+  Usage in any index.html — single line include:
+
+      {% include "partials/list_card.html" with page_title="Projects" page_subtitle="Manage all projects" table_id="projects-table" %}
+
+      <div class="card card-bordered mt-0 lc-table-wrapper">
+        <div class="card-inner p-0">
+          <table id="projects-table" class="nowrap table lc-table">
+            ... your table unchanged ...
+          </table>
+        </div>
+      </div>
+
+  Context variables:
+      page_title       – card header title
+      page_subtitle    – card header subtitle  (optional)
+      table_id         – id on your <table>    (default: "main-table")
+      rows_per_page    – rows shown per page   (default: 20)
+      show_export      – False to hide button  (default: shown)
+      export_excel_url – auto-injected by ExportListMixin
+      table_headers    – auto-injected by ExportListMixin
+=============================================================================
+{% endcomment %}
+
+<style>
+:root {
+  --lc-navy:       #1E3A5F;
+  --lc-navy-dark:  #152C4A;
+  --lc-blue:       #2471A3;
+  --lc-blue-light: #D6E4F0;
+  --lc-blue-pale:  #EBF5FB;
+  --lc-accent:     #27AE60;
+  --lc-white:      #FFFFFF;
+  --lc-text-muted: rgba(255,255,255,0.75);
+  --lc-border:     #A9CCE3;
+  --lc-radius:     .75rem;
+  --lc-shadow:     0 4px 24px rgba(30,58,95,.18);
+}
+.lc-card {
+  background:    var(--lc-navy);
+  border-radius: var(--lc-radius) var(--lc-radius) 0 0;
+  box-shadow:    var(--lc-shadow);
+  overflow:      hidden;
+}
+.lc-header {
+  background:    linear-gradient(135deg, var(--lc-navy-dark) 0%, var(--lc-navy) 60%, var(--lc-blue) 100%);
+  padding:       1.2rem 1.5rem .85rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.lc-header h3 {
+  color:       var(--lc-white);
+  font-size:   1.1rem;
+  font-weight: 700;
+  margin:      0 0 .15rem;
+}
+.lc-header p { color: var(--lc-text-muted); font-size: .82rem; margin: 0; }
+
+.lc-toolbar {
+  background:  var(--lc-navy-dark);
+  padding:     .7rem 1.25rem;
+  display:     flex;
+  flex-wrap:   wrap;
+  gap:         .55rem;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.lc-search-wrap {
+  display:     flex;
+  flex:        1 1 auto;
+  gap:         .4rem;
+  align-items: center;
+  align-self:  center;
+}
+.lc-search-wrap input[type="text"] {
+  flex:          1 1 auto;
+  min-width:     80px;
+  height:        2.1rem;
+  box-sizing:    border-box;
+  background:    rgba(255,255,255,.1);
+  border:        1px solid rgba(255,255,255,.2);
+  border-radius: .4rem;
+  color:         #fff;
+  padding:       0 .75rem;
+  font-size:     .84rem;
+  outline:       none;
+  line-height:   2.1rem;
+  transition:    border-color .2s, background .2s;
+}
+.lc-search-wrap input[type="text"]::placeholder { color: rgba(255,255,255,.4); }
+.lc-search-wrap input[type="text"]:focus {
+  border-color: var(--lc-accent);
+  background:   rgba(255,255,255,.15);
+}
+.lc-search-wrap select,
+.lc-rpp-wrap    select {
+  height:        2.1rem;
+  box-sizing:    border-box;
+  background:    rgba(255,255,255,.1);
+  border:        1px solid rgba(255,255,255,.2);
+  border-radius: .4rem;
+  color:         #fff;
+  padding:       0 .6rem;
+  font-size:     .82rem;
+  outline:       none;
+  cursor:        pointer;
+}
+.lc-search-wrap select option,
+.lc-rpp-wrap    select option { background: var(--lc-navy-dark); color: #fff; }
+
+.lc-rpp-wrap {
+  display:     flex;
+  align-items: center;
+  gap:         .35rem;
+  color:       var(--lc-text-muted);
+  font-size:   .8rem;
+  white-space: nowrap;
+}
+.lc-btn-export {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             .4rem;
+  background:      var(--lc-accent);
+  color:           #fff;
+  border:          none;
+  border-radius:   .4rem;
+  padding:         .42rem .95rem;
+  font-size:       .83rem;
+  font-weight:     600;
+  cursor:          pointer;
+  text-decoration: none;
+  white-space:     nowrap;
+  transition:      opacity .2s, transform .15s;
+}
+.lc-btn-export:hover { opacity: .85; transform: translateY(-1px); color: #fff; }
+
+/* Table */
+.lc-table-inner { overflow-x: auto; }
+table.lc-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       .875rem;
+}
+table.lc-table thead tr th {
+  background:     var(--lc-navy);
+  color:          #fff;
+  font-weight:    600;
+  padding:        .7rem .9rem;
+  white-space:    nowrap;
+  border-bottom:  2px solid var(--lc-blue);
+  letter-spacing: .02em;
+}
+table.lc-table tbody tr:nth-child(odd)  td { background: var(--lc-blue-light); }
+table.lc-table tbody tr:nth-child(even) td { background: var(--lc-blue-pale);  }
+table.lc-table tbody tr:hover td { background: #BFD9EE; transition: background .12s; }
+table.lc-table td {
+  padding:        .6rem .9rem;
+  border-bottom:  1px solid var(--lc-border);
+  color:          #1a2a3a;
+  vertical-align: middle;
+}
+.lc-no-results-row td {
+  text-align:  center;
+  color:       #7f9ab0;
+  font-style:  italic;
+  padding:     1.5rem !important;
+  background:  var(--lc-blue-pale) !important;
+}
+
+/* Pagination */
+.lc-pagination {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             .5rem;
+  padding:         .65rem 1.25rem;
+  background:      var(--lc-navy-dark);
+  border-radius:   0 0 var(--lc-radius) var(--lc-radius);
+  box-shadow:      var(--lc-shadow);
+  margin-bottom:   1.5rem;
+}
+.lc-page-info { color: var(--lc-text-muted); font-size: .8rem; }
+.lc-page-btns { display: flex; gap: .25rem; flex-wrap: wrap; }
+.lc-page-btns button {
+  background:    rgba(255,255,255,.1);
+  border:        1px solid rgba(255,255,255,.2);
+  border-radius: .35rem;
+  color:         #fff;
+  padding:       .28rem .62rem;
+  font-size:     .8rem;
+  cursor:        pointer;
+  min-width:     2rem;
+  transition:    background .15s;
+}
+.lc-page-btns button:hover          { background: rgba(255,255,255,.22); }
+.lc-page-btns button.lc-active      { background: var(--lc-accent); border-color: var(--lc-accent); font-weight: 700; }
+.lc-page-btns button:disabled       { opacity: .35; cursor: default; }
+
+@media (max-width: 576px) {
+  /* Stack toolbar rows but never stretch them tall */
+  .lc-toolbar {
+    flex-direction: column;
+    align-items:    stretch;
+  }
+  /* Search row stays horizontal, shrinks to content height */
+  .lc-search-wrap {
+    flex:        0 0 auto;
+    align-self:  stretch;
+    align-items: center;
+  }
+  .lc-search-wrap input[type="text"],
+  .lc-search-wrap select {
+    height:     2.1rem;
+    max-height: 2.1rem;
+    flex-shrink: 0;
+    align-self: center;
+  }
+  .lc-search-wrap input[type="text"] { flex: 1 1 auto; }
+  .lc-search-wrap select             { flex: 0 0 auto; }
+  .lc-rpp-wrap   { align-self: flex-start; }
+  .lc-btn-export { justify-content: center; width: 100%; }
+  .lc-pagination { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+{% with tid=table_id|default:"main-table" %}
+
+<div class="lc-card">
+  {% if page_title or page_subtitle %}
+  <div class="lc-header">
+    <h3>{{ page_title|default:"Records" }}</h3>
+    {% if page_subtitle %}<p>{{ page_subtitle }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="lc-toolbar">
+    <div class="lc-search-wrap">
+      <input type="text" id="lc-search-{{ tid }}" placeholder="Search…" autocomplete="off">
+      <select id="lc-col-{{ tid }}" title="Search in column">
+        <option value="ALL">All columns</option>
+
+        {% if request.user.account_type != "organization_owner" %}
+
+        {% for hdr in table_headers %}
+          <option value="{{ forloop.counter0 }}">{{ hdr }}</option>
+        {% endfor %}
+
+        {% endif %}
+      </select>
+    </div>
+
+    <div class="lc-rpp-wrap">
+      <label for="lc-rpp-{{ tid }}">Show</label>
+      <select id="lc-rpp-{{ tid }}">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="9999">All</option>
+      </select>
+      <span>rows</span>
+    </div>
+
+    {% if show_export != False and request.user.account_type != "organization_owner" %}
+    <a href="{{ export_excel_url }}" class="lc-btn-export">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Export Excel
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="lc-pagination" id="lc-pager-{{ tid }}">
+  <span class="lc-page-info" id="lc-info-{{ tid }}"></span>
+  <div  class="lc-page-btns" id="lc-btns-{{ tid }}"></div>
+</div>
+
+<script>
+(function () {
+  var TABLE_ID    = "{{ tid }}";
+  var DEFAULT_RPP = {{ rows_per_page|default:20 }};
+
+  function boot() {
+    var table = document.getElementById(TABLE_ID);
+    if (!table) return;
+
+    var searchEl = document.getElementById("lc-search-" + TABLE_ID);
+    var colEl    = document.getElementById("lc-col-"    + TABLE_ID);
+    var rppEl    = document.getElementById("lc-rpp-"    + TABLE_ID);
+    var infoEl   = document.getElementById("lc-info-"   + TABLE_ID);
+    var btnsEl   = document.getElementById("lc-btns-"   + TABLE_ID);
+
+    table.classList.add("lc-table");
+
+    // Wrap for horizontal scroll
+    var parent = table.parentElement;
+    if (parent && !parent.classList.contains("lc-table-inner")) {
+      var inner = document.createElement("div");
+      inner.className = "lc-table-inner";
+      parent.insertBefore(inner, table);
+      inner.appendChild(table);
+    }
+
+    var tbody = table.querySelector("tbody");
+    if (!tbody) return;
+
+    var allRows  = [];
+    var filtered = [];
+    var curPage  = 1;
+    var rpp      = DEFAULT_RPP;
+
+    function buildRows() {
+      allRows = [];
+      tbody.querySelectorAll("tr").forEach(function (tr) {
+        var cells = [];
+        tr.querySelectorAll("td").forEach(function (td) {
+          cells.push((td.textContent || "").toLowerCase().trim());
+        });
+        allRows.push({ el: tr, cells: cells });
+      });
+      filtered = allRows.map(function (_, i) { return i; });
+    }
+
+    function doSearch() {
+      var q   = searchEl ? searchEl.value.trim().toLowerCase() : "";
+      var col = colEl    ? colEl.value : "ALL";
+      if (!q) {
+        filtered = allRows.map(function (_, i) { return i; });
+      } else {
+        filtered = [];
+        allRows.forEach(function (row, i) {
+          var hit;
+          if (col === "ALL") {
+            hit = row.cells.some(function (c) { return c.indexOf(q) !== -1; });
+          } else {
+            var ci = parseInt(col, 10);
+            hit = row.cells[ci] !== undefined && row.cells[ci].indexOf(q) !== -1;
+          }
+          if (hit) filtered.push(i);
+        });
+      }
+      curPage = 1;
+      render();
+    }
+
+    function render() {
+      var total = filtered.length;
+      var start = (curPage - 1) * rpp;
+      var end   = Math.min(start + rpp, total);
+      var pageSet = {};
+      filtered.slice(start, end).forEach(function (i) { pageSet[i] = true; });
+
+      allRows.forEach(function (row, i) {
+        row.el.style.display = pageSet[i] ? "" : "none";
+      });
+
+      var noRow = tbody.querySelector(".lc-no-results-row");
+      if (total === 0) {
+        if (!noRow) {
+          var cols = table.querySelectorAll("thead th").length || 1;
+          noRow = document.createElement("tr");
+          noRow.className = "lc-no-results-row";
+          var td = document.createElement("td");
+          td.colSpan = cols;
+          td.textContent = "No records found.";
+          noRow.appendChild(td);
+          tbody.appendChild(noRow);
+        }
+        noRow.style.display = "";
+      } else if (noRow) {
+        noRow.style.display = "none";
+      }
+
+      if (infoEl) {
+        infoEl.textContent = total === 0
+          ? "No records found"
+          : "Showing " + (start + 1) + "\u2013" + end + " of " + total + " records";
+      }
+
+      renderPager(total);
+    }
+
+    function renderPager(total) {
+      if (!btnsEl) return;
+      btnsEl.innerHTML = "";
+      if (rpp >= 9999 || total <= rpp) return;
+
+      var pages = Math.ceil(total / rpp);
+
+      function mkBtn(label, page, disabled, active) {
+        var b = document.createElement("button");
+        b.textContent = label;
+        if (disabled) b.disabled = true;
+        if (active)   b.classList.add("lc-active");
+        b.addEventListener("click", function () { curPage = page; render(); });
+        return b;
+      }
+
+      btnsEl.appendChild(mkBtn("\u00AB", 1,           curPage === 1,     false));
+      btnsEl.appendChild(mkBtn("\u2039", curPage - 1, curPage === 1,     false));
+
+      var lo = Math.max(1, curPage - 2);
+      var hi = Math.min(pages, curPage + 2);
+      if (lo > 1)     btnsEl.appendChild(mkBtn("\u2026", lo - 1, true, false));
+      for (var p = lo; p <= hi; p++) {
+        btnsEl.appendChild(mkBtn(p, p, false, p === curPage));
+      }
+      if (hi < pages) btnsEl.appendChild(mkBtn("\u2026", hi + 1, true, false));
+
+      btnsEl.appendChild(mkBtn("\u203A", curPage + 1, curPage === pages, false));
+      btnsEl.appendChild(mkBtn("\u00BB", pages,       curPage === pages, false));
+    }
+
+    if (searchEl) searchEl.addEventListener("input",  doSearch);
+    if (colEl)    colEl.addEventListener("change",    function () { if (searchEl && searchEl.value.trim()) doSearch(); });
+    if (rppEl)    rppEl.addEventListener("change",    function () { rpp = parseInt(this.value, 10) || 20; curPage = 1; render(); });
+
+    buildRows();
+    render();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
+{% endwith %}

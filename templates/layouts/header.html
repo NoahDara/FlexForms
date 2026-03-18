@@ -2,7 +2,7 @@
 
 
 <div class="nk-header nk-header-fluid is-theme is-regular">
-  <div class="container-xl wide-xl">
+  <div class="container-xxl wide-xxl">
     <div class="nk-header-wrap">
       <div class="nk-menu-trigger me-sm-2 d-lg-none">
         <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="headerNav">
@@ -47,6 +47,18 @@
           <li class="nk-menu-item">
             <a href="{% url "dashboard" %}" class="nk-menu-link">
               <span class="nk-menu-text">Dashboard</span>
+            </a >
+          </li>
+
+          <li class="nk-menu-item">
+            <a href="{% url "data-type-index" %}" class="nk-menu-link">
+              <span class="nk-menu-text">Data Types</span>
+            </a >
+          </li>
+
+          <li class="nk-menu-item">
+            <a href="{% url "data-source-index" %}" class="nk-menu-link">
+              <span class="nk-menu-text">Data Sources</span>
             </a >
           </li>
 

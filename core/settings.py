@@ -32,12 +32,14 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'audit.apps.AuditConfig',
     'dashboard.apps.DashboardConfig',
+    'data.apps.DataConfig',
     'config.apps.ConfigConfig',
     
     #3rd party apps
     "debug_toolbar",
     "crispy_forms",
     "crispy_bootstrap5", 
+    'simple_history',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -55,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'audit.middleware.NavigationTrackingMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware', 
     'allauth.account.middleware.AccountMiddleware',
 ]
 

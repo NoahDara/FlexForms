@@ -1,0 +1,130 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Data Source Management{% endblock title %}
+{% block page_title %}Data Source Management{% endblock %}
+{% block page_sub_title %}Manage and organize all data sources{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'data-source-create' %}" class="btn btn-primary">
+    <em class="icon ni ni-plus-round"></em>
+    <span>New Data Source</span>
+  </a>
+</li>
+{% endblock %}
+{% block content %}
+
+{% include "partials/list_card.html" with table_id="data-sources-table" %}
+<div class="card card-bordered mt-0 lc-table-wrapper">
+  <div class="card-inner p-0">
+    <table id="data-sources-table" class="nowrap table lc-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Code</th>
+          <th>Created By</th>
+          <th>Description</th>
+          <th>Created</th>
+          <th>Updated</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in data_sources %}
+        <tr>
+          <td><a href="{% url 'data-create' obj.uid %}" class="fw-medium text-primary">{{ obj.name }}</a></td>
+          <td><code>{{ obj.code }}</code></td>
+          <td>{{ obj.created_by|default:"-" }}</td>
+          <td>{{ obj.description|default:"-" }}</td>
+          <td>{{ obj.created|date:"Y-m-d H:i" }}</td>
+          <td>{{ obj.updated|date:"Y-m-d H:i" }}</td>
+          <td>
+            {% if obj.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'data-source-update' obj.uid %}" class="btn btn-dim btn-outline-primary btn-sm">Edit</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#dataSourceToggleModal{{ obj.uid }}" class="btn btn-dim btn-outline-warning btn-sm">
+              {% if obj.is_active %}Deactivate{% else %}Activate{% endif %}
+            </a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#dataSourceDeleteModal{{ obj.uid }}" class="btn btn-dim btn-outline-danger btn-sm">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% for obj in data_sources %}
+
+<!-- Toggle Active Modal -->
+<div class="modal fade" id="dataSourceToggleModal{{ obj.uid }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% if obj.is_active %}Deactivate{% else %}Activate{% endif %} {{ obj.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="{% if obj.is_active %}text-warning{% else %}text-info{% endif %}">
+          {% if obj.is_active %}
+            This will disable the data source from being used.
+          {% else %}
+            This will enable the data source for use.
+          {% endif %}
+        </p>
+        <h5>Are you sure you want to {% if obj.is_active %}deactivate{% else %}activate{% endif %} this data source?</h5>
+        <div class="mt-3">
+          <p><strong>Name:</strong> {{ obj.name }}</p>
+          <p><strong>Code:</strong> {{ obj.code }}</p>
+          <p><strong>Current Status:</strong>
+            {% if obj.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer bg-light justify-content-between">
+        <a href="#" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</a>
+        <a href="{% url 'data-source-toggle-active' obj.uid %}" class="btn {% if obj.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+          Yes, {% if obj.is_active %}Deactivate{% else %}Activate{% endif %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="dataSourceDeleteModal{{ obj.uid }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete {{ obj.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-warning">This action is irreversible</p>
+        <h5>Are you sure you want to delete this data source?</h5>
+        <div class="mt-3">
+          <p><strong>Name:</strong> {{ obj.name }}</p>
+          <p><strong>Code:</strong> {{ obj.code }}</p>
+          <p><strong>Description:</strong> {{ obj.description|default:"-" }}</p>
+        </div>
+      </div>
+      <div class="modal-footer bg-light justify-content-between">
+        <a href="#" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</a>
+        <a href="{% url 'data-source-delete' obj.uid %}" class="btn btn-outline-danger">Yes, Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+{% endblock %}

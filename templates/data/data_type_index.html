@@ -1,0 +1,38 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Data Types{% endblock %}
+
+{% block actions %}{% endblock %}
+
+{% block content %}
+
+{% include "partials/list_card.html" with  page_title="Data Types"   page_subtitle="Browse all available data types" table_id="data-types-table"  %}
+
+<div class="card card-bordered mt-0 lc-table-wrapper">
+  <div class="card-inner p-0">
+    <table id="data-types-table" class="nowrap table lc-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for data_type in data_types %}
+        <tr>
+          <td>{{ data_type.code }}</td>
+          <td>{{ data_type.name }}</td>
+          <td>{{ data_type.description|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted">No data types found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
