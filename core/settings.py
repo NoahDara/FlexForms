@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount', 
     
     'accounts.apps.AccountsConfig',
-    'audit.apps.AuditConfig',
     'dashboard.apps.DashboardConfig',
     'data.apps.DataConfig',
     'config.apps.ConfigConfig',
@@ -56,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'audit.middleware.NavigationTrackingMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware', 
     'allauth.account.middleware.AccountMiddleware',
 ]
