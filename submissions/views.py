@@ -20,7 +20,7 @@ Both views share a mixin (SubmissionFormMixin) that owns all the shared logic:
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -32,6 +32,7 @@ from submissions.field_builder import (
     get_field_name,
     is_table_field,
 )
+from submissions.pdf_generator import generate_submission_pdf
 from submissions.serialiser import serialise_submission
 from submissions.deserialiser import (
     deserialise_submission,
@@ -619,3 +620,54 @@ class SubmissionDetailView(TemplateView):
             "sections":      submission.response.get("sections", []),
             "ungrouped":     submission.response.get("ungrouped", {}),
         })
+       
+from helpers.views import SafeListView , SafeDeleteView, ToggleActiveView
+        
+class SubmissionListView(LoginRequiredMixin, SafeListView):
+    model = FormSubmission
+    template_name = "submissions/index.html"
+    context_object_name = 'submissions'
+    
+class SubmissionDeleteView(LoginRequiredMixin, SafeDeleteView):
+    model = FormSubmission
+    success_url = reverse_lazy("submission-index")
+    
+class SubmissionToggleActiveView(LoginRequiredMixin, ToggleActiveView):
+    model = Form
+    success_url = reverse_lazy("submission-index")
+        
+from django.http import FileResponse, Http404
+from django.core.files.storage import default_storage
+class SubmissionPDFView(View):
+    """
+    Generates (or regenerates) the submission PDF and streams it
+    to the browser as a file download.
+ 
+    URL pattern:
+        path("submissions/<uuid:uid>/pdf/", SubmissionPDFView.as_view(), name="submission-pdf")
+    """
+ 
+    def get(self, request, *args, **kwargs):
+        submission = get_object_or_404(
+            FormSubmission.objects.select_related("form"),
+            uid=self.kwargs["uid"],
+        )
+ 
+        try:
+            pdf_path = generate_submission_pdf(submission)
+        except Exception as e:
+            raise Http404(f"Could not generate PDF: {e}")
+ 
+        pdf_file = default_storage.open(pdf_path, "rb")
+ 
+        filename = (
+            f"{submission.form.title.replace(' ', '_')}"
+            f"_{str(submission.uid)[:8]}.pdf"
+        )
+ 
+        return FileResponse(
+            pdf_file,
+            as_attachment=True,
+            filename=filename,
+            content_type="application/pdf",
+        )
