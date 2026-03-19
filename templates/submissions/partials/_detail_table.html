@@ -1,0 +1,62 @@
+{% comment %} {# submissions/partials/_detail_table.html
+   Renders a stored table value read-only from the JSON payload.
+
+   table_value keys (from FormSubmission.response):
+     table_uid   — str UUID
+     table_type  — "dynamic_rows" | "fixed_grid"
+     columns     — list of { uid, header, data_type }
+     rows        — list of row dicts
+
+   Dynamic row:  { row_index, cells: { col_uid: { header, data_type, value } } }
+   Fixed row:    { row_uid, row_label, cells: { col_uid: { header, data_type, value } } }
+#} {% endcomment %}
+
+{% load submission_tags %}
+
+{% if table_value and table_value.rows %}
+
+  <div class="table-responsive mt-1">
+    <table class="table table-bordered table-sm align-middle">
+
+      {# ── Column headers ───────────────────────────────────────────────────── #}
+      <thead class="table-light">
+        <tr>
+          {% if dt == "table_fixed" %}
+            {# Fixed grid: first col is the row label #}
+            <th style="width:20%;"></th>
+          {% endif %}
+          {% for col in table_value.columns %}
+            <th>{{ col.header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in table_value.rows %}
+          <tr>
+
+            {# Fixed grid row label #}
+            {% if dt == "table_fixed" %}
+              <td class="fw-medium table-light align-middle">{{ row.row_label }}</td>
+            {% endif %}
+
+            {# Cells — iterate columns to preserve order #}
+            {% for col in table_value.columns %}
+              {% with cell=row.cells|dict_get:col.uid %}
+                <td class="align-middle">
+                  {% include "submissions/partials/_detail_cell.html" with cell=cell %}
+                </td>
+              {% endwith %}
+            {% endfor %}
+
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+
+{% else %}
+  {# Table exists but no rows were saved #}
+  <p class="text-muted fst-italic mb-0">No entries recorded.</p>
+{% endif %}

@@ -108,4 +108,4 @@ class FormField(BaseModel):
         unique_together = [("form", "label")]
 
     def __str__(self):
-        return f"{self.form.title} — {self.label} ({self.get_field_type_display()})"
+        return f"{self.form.title} — {self.label} ({self.data_type})"

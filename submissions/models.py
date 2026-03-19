@@ -55,7 +55,7 @@ class FormSubmission(BaseModel):
     }
     """
 
-    form = models.ForeignKey("forms.Fom", on_delete=models.CASCADE,  related_name="submissions",  help_text="The form that was submitted",)
+    form = models.ForeignKey("forms.Form", on_delete=models.CASCADE,  related_name="submissions",  help_text="The form that was submitted",)
     status = models.CharField(max_length=100, default="draft")
     submitted_at = models.DateTimeField(auto_now_add=True,  help_text="Timestamp of when the form was submitted",)
     response = models.JSONField(default=dict, blank=True,

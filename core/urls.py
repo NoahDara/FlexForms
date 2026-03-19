@@ -16,6 +16,7 @@ urlpatterns = [
     path('data/', include('data.urls')),
     path('forms/', include('forms.urls')),
     path('tables/', include('tables.urls')),
+    path('', include('submissions.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

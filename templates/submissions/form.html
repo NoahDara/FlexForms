@@ -1,0 +1,217 @@
+{% extends 'layouts/base.html' %}
+{% block title %}{{ form_definition.title }}{% endblock %}
+
+{% block page_title %}{{ form_definition.title }}{% endblock %}
+{% block page_sub_title %}{% if form_definition.description %}{{ form_definition.description }}{% endif %}{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'form-index' %}" class="btn btn-outline-light">
+    <em class="icon ni ni-curve-down-left"></em>
+    <span>Back</span>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+{# ── Signature Pad library (loaded once at top of content) ─────────────────── #}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+<form method="post" enctype="multipart/form-data" id="submission-form" novalidate>
+  {% csrf_token %}
+  {# Hidden field so the view knows which button was pressed #}
+  <input type="hidden" name="action" id="form-action-input" value="submit">
+
+  {# ── Non-field / global errors ──────────────────────────────────────────── #}
+  {% if django_form.non_field_errors %}
+    <div class="alert alert-danger alert-icon mb-4">
+      <em class="icon ni ni-cross-circle"></em>
+      {% for error in django_form.non_field_errors %}
+        <span>{{ error }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  
+  {% for section_ctx in sections %}
+    <div class="card card-bordered mb-4">
+      <div class="card-inner">
+
+        {# Section header #}
+        <div class="mb-4">
+          <span class="preview-title-lg overline-title">{{ section_ctx.section.name }}</span>
+          {% if section_ctx.section.description %}
+            <p class="text-soft mt-1">{{ section_ctx.section.description }}</p>
+          {% endif %}
+        </div>
+
+        <div class="row gy-4">
+          {% for field_ctx in section_ctx.fields %}
+            {% include "submissions/partials/_field.html" with field_ctx=field_ctx %}
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  {% endfor %}
+
+  
+
+  {% if ungrouped_fields %}
+    <div class="card card-bordered mb-4">
+      <div class="card-inner">
+        <div class="row gy-4">
+          {% for field_ctx in ungrouped_fields %}
+            {% include "submissions/partials/_field.html" with field_ctx=field_ctx %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+
+
+  <div class="card card-bordered">
+    <div class="card-inner">
+      <div class="d-flex gap-2 flex-wrap">
+
+        <button type="submit"
+                class="btn btn-primary"
+                onclick="document.getElementById('form-action-input').value='submit'">
+          <em class="icon ni ni-check"></em>
+          <span>Submit</span>
+        </button>
+
+        <button type="submit"
+                class="btn btn-outline-secondary"
+                onclick="document.getElementById('form-action-input').value='draft'">
+          <em class="icon ni ni-save"></em>
+          <span>Save as Draft</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+</form>
+
+<script>
+window.addEventListener("load", function () {
+  "use strict";
+
+  document.querySelectorAll(".signature-canvas").forEach(function (canvas) {
+    var wrapper     = canvas.closest(".signature-wrapper");
+    var hiddenInput = wrapper.querySelector(".signature-data-input");
+    var clearBtn    = wrapper.querySelector(".signature-clear-btn");
+
+    // ── Size the canvas backing store to match its CSS size ──────────────
+    function resizeCanvas() {
+      var ratio  = Math.max(window.devicePixelRatio || 1, 1);
+      var width  = canvas.offsetWidth  || 500;
+      var height = canvas.offsetHeight || 200;
+      canvas.width  = width  * ratio;
+      canvas.height = height * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+    }
+    resizeCanvas();
+
+    var pad = new SignaturePad(canvas, {
+      backgroundColor: "rgb(255,255,255)",
+      penColor:        "rgb(0,0,0)",
+    });
+
+    // ── Restore saved data — read from canvas data attribute ─────────────
+    // data-signature-initial is now on the canvas itself, not the hidden input
+    var savedData = canvas.dataset.signatureInitial;
+    if (savedData) {
+      try { pad.fromData(JSON.parse(savedData)); } catch (e) {}
+    }
+
+    // ── On submit — write stroke JSON into hidden input ───────────────────
+    var theForm = canvas.closest("form");
+    if (theForm) {
+      theForm.addEventListener("submit", function () {
+        if (hiddenInput) {
+          hiddenInput.value = pad.isEmpty() ? "" : JSON.stringify(pad.toData());
+        }
+      });
+    }
+
+    // ── Clear ─────────────────────────────────────────────────────────────
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        pad.clear();
+        if (hiddenInput) hiddenInput.value = "";
+      });
+    }
+
+    // ── Resize handler ────────────────────────────────────────────────────
+    window.addEventListener("resize", function () {
+      var data = pad.toData();
+      resizeCanvas();
+      pad.fromData(data);
+    });
+  });
+
+
+  // ── Dynamic table — Add / Remove row ─────────────────────────────────────
+  document.querySelectorAll(".dynamic-table-wrapper").forEach(function (wrapper) {
+    var tbody    = wrapper.querySelector("tbody");
+    var addBtn   = wrapper.querySelector(".add-row-btn");
+    var tableUid = wrapper.dataset.tableUid;
+
+    function getNextRowIndex() {
+      var rows = tbody.querySelectorAll("tr[data-row-index]");
+      var max  = -1;
+      rows.forEach(function (r) {
+        var idx = parseInt(r.dataset.rowIndex, 10);
+        if (!isNaN(idx) && idx > max) max = idx;
+      });
+      return max + 1;
+    }
+
+    if (addBtn) {
+      addBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var template = wrapper.querySelector(".row-template");
+        if (!template) return;
+
+        var newIndex = getNextRowIndex();
+        var clone    = template.cloneNode(true);
+        clone.classList.remove("row-template", "d-none");
+        clone.setAttribute("data-row-index", newIndex);
+
+        clone.querySelectorAll("[name]").forEach(function (el) {
+          el.name = el.name.replace("__row__TEMPLATE__", "__row__" + newIndex + "__");
+          if (el.id) el.id = el.id.replace("__row__TEMPLATE__", "__row__" + newIndex + "__");
+          el.value = "";
+        });
+
+        clone.querySelectorAll(".js-select2").forEach(function (sel) {
+          if (window.jQuery && jQuery(sel).data("select2")) {
+            jQuery(sel).select2("destroy");
+          }
+        });
+
+        tbody.appendChild(clone);
+
+        if (window.jQuery) {
+          jQuery(clone).find(".js-select2").select2({ width: "100%" });
+        }
+      });
+    }
+
+    tbody.addEventListener("click", function (e) {
+      var removeBtn = e.target.closest(".remove-row-btn");
+      if (!removeBtn) return;
+      e.preventDefault();
+      var row = removeBtn.closest("tr");
+      if (row && !row.classList.contains("row-template")) row.remove();
+    });
+  });
+
+});
+</script>
+{% endblock %}

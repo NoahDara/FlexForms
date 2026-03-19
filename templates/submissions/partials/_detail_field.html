@@ -1,0 +1,183 @@
+{% comment %} {# submissions/partials/_detail_field.html
+   Renders a single field value read-only from the stored JSON payload.
+
+   payload keys (from FormSubmission.response):
+     label      — field label string
+     data_type  — DataType.code string
+     value      — the stored value (type varies per data_type)
+#} {% endcomment %}
+
+{% load submission_tags %}
+
+{% with dt=payload.data_type val=payload.value label=payload.label %}
+
+
+{% if dt == "table_dynamic" or dt == "table_fixed" %}
+  <div class="col-12">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-2">{{ label }}</label>
+      {% include "submissions/partials/_detail_table.html" with table_value=val dt=dt %}
+    </div>
+  </div>
+
+
+{% elif dt == "signature" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <div class="border rounded bg-white" style="width:100%; height:180px;">
+          <canvas class="signature-canvas-readonly"
+                  data-signature-data="{{ val|to_json }}"
+                  style="width:100%; height:180px; display:block;">
+          </canvas>
+        </div>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "file" or dt == "image" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        {% if dt == "image" %}
+          <div>
+            <img src="{{ val|file_url }}"
+                 alt="{{ payload.original_name|default:label }}"
+                 class="img-fluid rounded"
+                 style="max-height:200px; object-fit:contain;">
+          </div>
+        {% else %}
+          <a href="{{ val|file_url }}"
+             target="_blank"
+             class="btn btn-outline-primary btn-sm">
+            <em class="icon ni ni-download"></em>
+            {{ payload.original_name|default:"Download file" }}
+          </a>
+        {% endif %}
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "boolean" %}
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      <div>
+        {% if val %}
+          <span class="badge bg-success">
+            <em class="icon ni ni-check me-1"></em>Yes
+          </span>
+        {% else %}
+          <span class="badge bg-light text-dark">
+            <em class="icon ni ni-cross me-1"></em>No
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+{% elif dt == "foreign_key" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <p class="mb-0">{{ val.name }}</p>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "many_to_many" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <div class="d-flex flex-wrap gap-1">
+          {% for item in val %}
+            <span class="badge badge-dim bg-outline-primary">{{ item.name }}</span>
+          {% endfor %}
+        </div>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "text" %}
+  <div class="col-12">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <p class="mb-0" style="white-space: pre-wrap;">{{ val }}</p>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "percentage" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val is not None %}
+        <p class="mb-0">{{ val }}<span class="text-soft ms-1">%</span></p>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "url" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <a href="{{ val }}" target="_blank" class="text-primary">{{ val }}</a>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% elif dt == "email" %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val %}
+        <a href="mailto:{{ val }}" class="text-primary">{{ val }}</a>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+
+
+{% else %}
+  <div class="col-12 col-sm-6">
+    <div class="form-group">
+      <label class="overline-title text-soft mb-1">{{ label }}</label>
+      {% if val is not None and val != "" %}
+        <p class="mb-0">{{ val }}</p>
+      {% else %}
+        {% include "submissions/partials/_empty_value.html" %}
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+{% endwith %}

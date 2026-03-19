@@ -1,0 +1,101 @@
+{% extends 'layouts/base.html' %}
+{% block title %}{{ form_definition.title }} — Submission{% endblock %}
+
+{% block page_title %}{{ form_definition.title }}{% endblock %}
+{% block page_sub_title %}
+  Submitted {{ submission.submitted_at|date:"d M Y, H:i" }}
+  &nbsp;·&nbsp;
+  {% if submission.status == "submitted" %}
+    <span class="badge bg-success">Submitted</span>
+  {% else %}
+    <span class="badge bg-warning text-dark">Draft</span>
+  {% endif %}
+{% endblock %}
+
+{% block actions %}
+<li class="nk-block-tools-opt">
+  <a href="{% url 'submission-edit' uid=submission.uid %}" class="btn btn-outline-primary">
+    <em class="icon ni ni-edit"></em>
+    <span>Edit</span>
+  </a>
+</li>
+<li class="nk-block-tools-opt">
+  <a href="" class="btn btn-outline-light">
+    <em class="icon ni ni-curve-down-left"></em>
+    <span>Back</span>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+{# ── Signature pad (read-only replay only — no drawing) ───────────────────── #}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+
+   {% comment %} SECTIONED ANSWERS {% endcomment %}
+
+{% for section in sections %}
+  <div class="card card-bordered mb-4">
+    <div class="card-inner">
+
+      <div class="mb-4">
+        <span class="preview-title-lg overline-title">{{ section.section_name }}</span>
+      </div>
+
+      <div class="row gy-3">
+        {% for field_uid, payload in section.answers.items %}
+          {% include "submissions/partials/_detail_field.html" with payload=payload %}
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+{% endfor %}
+
+   {% comment %} UNGROUPED ANSWERS? {% endcomment %}
+   
+{% if ungrouped %}
+  <div class="card card-bordered mb-4">
+    <div class="card-inner">
+      <div class="row gy-3">
+        {% for field_uid, payload in ungrouped.items %}
+          {% include "submissions/partials/_detail_field.html" with payload=payload %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{# ── Signature replay ─────────────────────────────────────────────────────── #}
+<script>
+window.addEventListener("load", function () {
+  "use strict";
+
+  document.querySelectorAll(".signature-canvas-readonly").forEach(function (canvas) {
+    var raw = canvas.dataset.signatureData;
+    if (!raw) return;
+
+    try {
+      var data = JSON.parse(raw);
+    } catch (e) {
+      console.error("Signature JSON parse error:", e);
+      return;
+    }
+
+    var ratio  = Math.max(window.devicePixelRatio || 1, 1);
+    var width  = canvas.offsetWidth  || 500;
+    var height = canvas.offsetHeight || 180;
+
+    canvas.width  = width  * ratio;
+    canvas.height = height * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+
+    var pad = new SignaturePad(canvas, { backgroundColor: "rgb(255,255,255)" });
+    pad.fromData(data);
+    pad.off();
+  });
+});
+</script>
+
+{% endblock %}

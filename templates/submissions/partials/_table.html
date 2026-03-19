@@ -1,0 +1,147 @@
+{% comment %} {# submissions/partials/_table.html
+   Renders a single table field — either dynamic_rows or fixed_grid.
+   Included by _field.html when data_type is table_dynamic or table_fixed.
+
+   table_data keys (built in views.py):
+     table_type   — "dynamic_rows" | "fixed_grid"
+     table_uid    — str UUID
+     table        — Table model instance
+     columns      — list of { uid, header, data_type, is_required, data_source }
+     rows         — list of row dicts (see below per table type)
+
+   Dynamic row dict:
+     { row_index, cells: [ { col_uid, header, data_type, input_name, field, value } ] }
+
+   Fixed row dict:
+     { row_uid, row_label, cells: [ { col_uid, data_type, input_name, field, value } ] }
+#} {% endcomment %}
+
+{% if table_data %}
+
+<div class="form-group">
+
+  {# ── Table label & help text ─────────────────────────────────────────────── #}
+  <label class="form-label overline-title mb-2">
+    {{ field_ctx.label }}
+    {% if field_ctx.is_required %}<span class="text-danger">*</span>{% endif %}
+  </label>
+
+  {% if field_ctx.help_text %}
+    <p class="text-soft mb-2">{{ field_ctx.help_text }}</p>
+  {% endif %}
+
+
+
+  {% if table_data.table_type == "dynamic_rows" %}
+
+    <div class="dynamic-table-wrapper" data-table-uid="{{ table_data.table_uid }}">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+
+          <thead class="table-light">
+            <tr>
+              {% for col in table_data.columns %}
+                <th>
+                  {{ col.header }}
+                  {% if col.is_required %}<span class="text-danger">*</span>{% endif %}
+                </th>
+              {% endfor %}
+              <th style="width:50px;"></th>{# remove button column #}
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {# ── Saved / initial rows ─────────────────────────────────────── #}
+            {% for row in table_data.rows %}
+              <tr data-row-index="{{ row.row_index }}">
+                {% for cell in row.cells %}
+                  <td class="align-middle p-1">
+                    {% include "submissions/partials/_cell.html" with cell=cell %}
+                  </td>
+                {% endfor %}
+                <td class="align-middle text-center p-1">
+                  <button type="button"
+                          class="btn btn-sm btn-icon btn-outline-danger remove-row-btn"
+                          title="Remove row">
+                    <em class="icon ni ni-trash"></em>
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+
+            {# ── Blank template row — hidden, cloned by JS "Add Row" ──────── #}
+            <tr class="row-template d-none" data-row-index="TEMPLATE">
+              {% for col in table_data.columns %}
+                {% with input_name="table__"|add:table_data.table_uid|add:"__row__TEMPLATE__"|add:col.uid %}
+                  <td class="align-middle p-1">
+                    {# Render a blank cell using the column's data type #}
+                    {% include "submissions/partials/_blank_cell.html" with col=col input_name=input_name %}
+                  </td>
+                {% endwith %}
+              {% endfor %}
+              <td class="align-middle text-center p-1">
+                <button type="button"
+                        class="btn btn-sm btn-icon btn-outline-danger remove-row-btn"
+                        title="Remove row">
+                  <em class="icon ni ni-trash"></em>
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      {# ── Add Row button ───────────────────────────────────────────────────── #}
+      <button type="button" class="btn btn-outline-primary btn-sm add-row-btn mt-2">
+        <em class="icon ni ni-plus"></em>
+        <span>Add Row</span>
+      </button>
+
+    </div>{# end dynamic-table-wrapper #}
+
+
+
+  {% elif table_data.table_type == "fixed_grid" %}
+
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+
+        <thead class="table-light">
+          <tr>
+            {# First column header is empty — it's the row label column #}
+            <th style="width:20%;"></th>
+            {% for col in table_data.columns %}
+              <th>{{ col.header }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in table_data.rows %}
+            <tr>
+              {# Row label (left-hand side) #}
+              <td class="align-middle fw-medium table-light">
+                {{ row.row_label }}
+              </td>
+
+              {# Cells #}
+              {% for cell in row.cells %}
+                <td class="align-middle p-1
+                    {% if cell.data_type == 'boolean' %}text-center{% endif %}">
+                  {% include "submissions/partials/_cell.html" with cell=cell %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+
+  {% endif %}{# end table_type branch #}
+
+</div>{# end form-group #}
+
+{% endif %}{# end if table_data #}

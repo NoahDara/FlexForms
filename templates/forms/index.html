@@ -35,7 +35,7 @@
       <tbody>
         {% for obj in forms %}
         <tr>
-          <td><a href="{% url 'form-preview' obj.uid %}" class="fw-medium text-primary">{{ obj.title }}</a></td>
+          <td><a href="{% url 'form-field-create' obj.uid %}" class="fw-medium text-primary">{{ obj.title }}</a></td>
           <td>{% if obj.requires_login %}<span class="badge bg-info">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
           <td>{{ obj.created_by|default:"-" }}</td>
           <td>{{ obj.description|default:"-" }}</td>

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'forms.apps.FormsConfig',
     'config.apps.ConfigConfig',
     'tables.apps.TablesConfig',
+    'submissions.apps.SubmissionsConfig',
     
     #3rd party apps
     "debug_toolbar",
