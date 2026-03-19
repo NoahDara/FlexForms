@@ -27,7 +27,7 @@ class FormUpdateView(LoginRequiredMixin, SafeUpdateView):
     model = Form
     form_class = FormForm
     template_name = "forms/update.html"
-    context_object_name = "form"
+    context_object_name = "form_"
     success_url = reverse_lazy("form-index")
     
 class FormDeleteView(LoginRequiredMixin, SafeDeleteView):

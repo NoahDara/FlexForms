@@ -1,0 +1,46 @@
+
+    <div class="messages" style="padding: 20px;">
+        {% if messages %}
+        {% for message in messages %}
+            <div class="example-alert alert-container">
+                <div class="alert alert-dismissible 
+                    {% if message.tags and message.tags == 'error' %} alert-danger 
+                    {% elif message.tags %} alert-{{ message.tags }} 
+                    {% endif %} alert-icon fade show">
+                    
+                    {% if message.tags and message.tags == 'error' %}
+                        <em class="icon ni ni-cross-circle"></em>
+                    {% elif message.tags and message.tags == 'success' %}
+                        <em class="icon ni ni-check-circle"></em>
+                    {% elif message.tags and message.tags == 'warning' %}
+                        <em class="icon ni ni-alert-circle"></em>
+                    {% elif message.tags and message.tags == 'info' %}
+                        <em class="icon ni ni-info-circle"></em>
+                    {% endif %}
+                    
+                    <strong>
+                        {% if message.tags == 'error' %} Failed! 
+                        {% elif message.tags == 'success' %} Success! 
+                        {% elif message.tags == 'warning' %} Warning! 
+                        {% elif message.tags == 'info' %} Notice! 
+                        {% else %} Message: 
+                        {% endif %}
+                    </strong> 
+                    
+                    {{ message }} 
+                    <button class="close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // Auto remove alerts after 10 seconds
+        setTimeout(function() {
+            let alerts = document.querySelectorAll(".alert-container");
+            alerts.forEach(function(alert) {
+                alert.remove();
+            });
+        }, 15000); // 30 seconds
+    </script>
