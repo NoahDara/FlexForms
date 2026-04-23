@@ -1,0 +1,255 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{% if object %}Edit {{ object.name }}{% else %}New Group{% endif %}{% endblock %}
+{% block page_title %}{% if object %}Edit Group{% else %}New Group{% endif %}{% endblock %}
+{% block page_sub_title %}
+    {% if object %}Update group name and permissions{% else %}Create a new group and assign permissions{% endif %}
+{% endblock %}
+
+{% block actions %}
+<li>
+    <a href="{% url 'group-index' %}" class="btn btn-white btn-dim btn-outline-light">
+        <em class="icon ni ni-arrow-left"></em>
+        <span>Back to Groups</span>
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+<form method="post">
+{% csrf_token %}
+
+    {# ── Group name ──────────────────────────────────────────────── #}
+    <div class="card mb-4">
+        <div class="card-inner">
+            <div class="card-title-group mb-3">
+                <div class="card-title">
+                    <h6 class="title">Group Details</h6>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label" for="id_name">Group Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="form-note text-danger">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-note">
+                            e.g. "Form Managers", "Reviewers", "Read Only"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Permission matrix ───────────────────────────────────────── #}
+    <div class="card mb-4">
+        <div class="card-inner">
+            <div class="card-title-group mb-1">
+                <div class="card-title">
+                    <h6 class="title">Permissions</h6>
+                    <p class="text-soft">
+                        Select what members of this group can do.
+                        Permissions are additive — users may belong to multiple groups.
+                    </p>
+                </div>
+                <div class="card-tools">
+                    {# Select / deselect all #}
+                    <button type="button" class="btn btn-sm btn-outline-light"
+                            id="btn-select-all">
+                        Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-light ms-1"
+                            id="btn-clear-all">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered" id="permission-matrix">
+                    <thead>
+                        <tr class="tb-tnx-head">
+                            <th style="min-width:160px;">Model</th>
+                            {% for action in actions %}
+                            <th class="text-center" style="width:110px;">
+                                <div class="d-flex flex-column align-items-center gap-1">
+                                    <span class="text-capitalize fw-medium">{{ action }}</span>
+                                    {# Column select-all toggle #}
+                                    <div class="form-check form-switch mt-1 mb-0"
+                                         title="Toggle all {{ action }} permissions">
+                                        <input class="form-check-input col-toggle"
+                                               type="checkbox"
+                                               data-action="{{ action }}"
+                                               id="col-toggle-{{ action }}">
+                                    </div>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in permission_matrix %}
+                        <tr>
+                            <td class="fw-medium align-middle">
+                                <div class="d-flex align-items-center gap-2">
+                                    {# Row select-all toggle #}
+                                    <div class="form-check form-switch mb-0"
+                                         title="Toggle all permissions for {{ row.label }}">
+                                        <input class="form-check-input row-toggle"
+                                               type="checkbox"
+                                               data-row="{{ forloop.counter }}"
+                                               id="row-toggle-{{ forloop.counter }}">
+                                    </div>
+                                    <label class="mb-0"
+                                           for="row-toggle-{{ forloop.counter }}">
+                                        {{ row.label }}
+                                    </label>
+                                </div>
+                            </td>
+                            {% for cell in row.cells %}
+                            <td class="text-center align-middle">
+                                {% if cell.permission_id %}
+                                <div class="form-check d-flex justify-content-center mb-0">
+                                    <input class="form-check-input perm-checkbox"
+                                           type="checkbox"
+                                           name="permissions"
+                                           value="{{ cell.permission_id }}"
+                                           id="perm-{{ cell.permission_id }}"
+                                           data-row="{{ forloop.parentloop.counter }}"
+                                           data-action="{{ cell.action }}"
+                                           {% if cell.checked %}checked{% endif %}>
+                                </div>
+                                {% else %}
+                                {# Permission doesn't exist in DB — show a dash #}
+                                <span class="text-soft">—</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    {# ── Submit ──────────────────────────────────────────────────── #}
+    <div class="card">
+        <div class="card-inner">
+            <div class="d-flex">
+                <button type="submit" class="btn btn-primary">
+                    <em class="icon ni ni-save"></em>
+                    <span>{% if object %}Save Changes{% else %}Create Group{% endif %}</span>
+                </button>
+                <a href="{% url 'group-index' %}"
+                   class="btn btn-outline-light">
+                    Cancel
+                </a>
+                {% if object and perms.auth.delete_group %}
+                <a href="{% url 'group-delete' object.pk %}"
+                   class="btn btn-outline-danger ms-auto">
+                    <em class="icon ni ni-trash"></em>
+                    <span>Delete Group</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</form>
+</div>
+
+<script>
+(function () {
+
+    var allCheckboxes = document.querySelectorAll('.perm-checkbox');
+
+    // ── Row toggles ───────────────────────────────────────────────
+    document.querySelectorAll('.row-toggle').forEach(function (toggle) {
+        var row = toggle.dataset.row;
+        var rowBoxes = document.querySelectorAll('.perm-checkbox[data-row="' + row + '"]');
+
+        syncRowToggle(toggle, rowBoxes);
+
+        toggle.addEventListener('change', function () {
+            rowBoxes.forEach(function (cb) { cb.checked = toggle.checked; });
+            syncAllColToggles();  // col toggles must update when a row is bulk-toggled
+        });
+
+        rowBoxes.forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                syncRowToggle(toggle, rowBoxes);
+                syncAllColToggles();  // keep col toggles in sync on every individual change
+            });
+        });
+    });
+
+    // ── Column toggles ────────────────────────────────────────────
+    document.querySelectorAll('.col-toggle').forEach(function (toggle) {
+        var action = toggle.dataset.action;
+        var colBoxes = document.querySelectorAll('.perm-checkbox[data-action="' + action + '"]');
+
+        syncColToggle(toggle, colBoxes);
+
+        toggle.addEventListener('change', function () {
+            colBoxes.forEach(function (cb) { cb.checked = toggle.checked; });
+            syncAllRowToggles();  // ← this was missing; row toggles must update too
+            syncColToggle(toggle, colBoxes);  // re-sync self (handles indeterminate)
+        });
+    });
+
+    // ── Select all / Clear all ────────────────────────────────────
+    document.getElementById('btn-select-all').addEventListener('click', function () {
+        allCheckboxes.forEach(function (cb) { cb.checked = true; });
+        syncAll();
+    });
+
+    document.getElementById('btn-clear-all').addEventListener('click', function () {
+        allCheckboxes.forEach(function (cb) { cb.checked = false; });
+        syncAll();
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function syncRowToggle(toggle, rowBoxes) {
+        var checked = Array.from(rowBoxes).filter(function (cb) { return cb.checked; }).length;
+        toggle.checked = checked === rowBoxes.length;
+        toggle.indeterminate = checked > 0 && checked < rowBoxes.length;
+    }
+
+    function syncColToggle(toggle, colBoxes) {
+        var checked = Array.from(colBoxes).filter(function (cb) { return cb.checked; }).length;
+        toggle.checked = checked === colBoxes.length;
+        toggle.indeterminate = checked > 0 && checked < colBoxes.length;
+    }
+
+    function syncAllRowToggles() {
+        document.querySelectorAll('.row-toggle').forEach(function (toggle) {
+            var rowBoxes = document.querySelectorAll(
+                '.perm-checkbox[data-row="' + toggle.dataset.row + '"]'
+            );
+            syncRowToggle(toggle, rowBoxes);
+        });
+    }
+
+    function syncAllColToggles() {
+        document.querySelectorAll('.col-toggle').forEach(function (toggle) {
+            var colBoxes = document.querySelectorAll(
+                '.perm-checkbox[data-action="' + toggle.dataset.action + '"]'
+            );
+            syncColToggle(toggle, colBoxes);
+        });
+    }
+
+    function syncAll() {
+        syncAllRowToggles();
+        syncAllColToggles();
+    }
+
+})();
+</script>
+{% endblock %}

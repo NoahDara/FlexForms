@@ -14,7 +14,7 @@ What gets created:
                         Section 1 — Personal Details
                             char, email, phone, date, boolean
                         Section 2 — Employment Details
-                            foreign_key (Departments), many_to_many (Departments)
+                            foreign_key (Departments), many_to_many (Departments)python manage.py seed_test_form
                             datetime, number, float, percentage
                         Section 3 — Employment History Table (dynamic)
                         Section 4 — Skill Assessment Table (fixed)

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from accounts.views import (
     CustomPasswordResetView, 
@@ -17,6 +17,8 @@ urlpatterns = [
     path('update-user/<int:pk>/', UserUpdateView.as_view(), name="update-user"),
     path('delete-user/', UserDeleteView.as_view(), name="delete-user"),
     path('deactivate-user/<int:pk>/', views.UserDeactivateView.as_view(), name="deactivate-user"),
+    
+    path('groups/', include('accounts.groups_urls')),
 
 
     # user authentication

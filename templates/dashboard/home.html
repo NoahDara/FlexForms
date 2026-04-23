@@ -1,1 +1,684 @@
 {% extends 'layouts/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}
+    {% if is_form_manager %}
+        Overview
+    {% else %}
+        My Dashboard
+    {% endif %}
+{% endblock %}
+
+{% block page_sub_title %}
+    {% if is_form_manager %}
+        System-wide activity and form analytics
+    {% else %}
+        Your submissions and available forms
+    {% endif %}
+{% endblock %}
+
+{% block actions %}
+    {% if is_form_manager %}
+    <li>
+        <a href="{% url 'form-index' %}" class="btn btn-white btn-dim btn-outline-primary">
+            <em class="icon ni ni-file-text"></em>
+            <span>All Forms</span>
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'submission-index' %}" class="btn btn-white btn-dim btn-outline-primary">
+            <em class="icon ni ni-reports"></em>
+            <span>All Submissions</span>
+        </a>
+    </li>
+    <li class="nk-block-tools-opt">
+        <a href="{% url 'form-create' %}" class="btn btn-primary">
+            <em class="icon ni ni-plus"></em>
+            <span>New Form</span>
+        </a>
+    </li>
+    {% else %}
+    <li class="nk-block-tools-opt">
+        <a href="{% url 'form-index' %}" class="btn btn-primary">
+            <em class="icon ni ni-file-text"></em>
+            <span>Browse Forms</span>
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{# ============================================================ #}
+{#  STAT CARDS                                                   #}
+{# ============================================================ #}
+
+{% if is_form_manager %}
+
+{# --- Admin stat cards --- #}
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Total Submissions</h6>
+                </div>
+                <div class="card-tools">
+                    <em class="card-hint-icon icon ni ni-help-fill" data-bs-toggle="tooltip" data-bs-placement="left" title="All non-draft submissions visible to you"></em>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ total_submissions }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Submitted</div>
+                        <span class="amount">{{ submitted_count }}</span>
+                    </div>
+                    <div class="invest-data-history">
+                        <div class="title">Approved</div>
+                        <span class="amount">{{ approved_count }}</span>
+                    </div>
+                    <div class="invest-data-history">
+                        <div class="title">Rejected</div>
+                        <span class="amount">{{ rejected_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Published Forms</h6>
+                </div>
+                <div class="card-tools">
+                    <em class="card-hint-icon icon ni ni-help-fill" data-bs-toggle="tooltip" data-bs-placement="left" title="Live forms accessible to users"></em>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ published_forms }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Draft Forms</div>
+                        <span class="amount">{{ draft_forms }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Pending Review</h6>
+                </div>
+                <div class="card-tools">
+                    <em class="card-hint-icon icon ni ni-help-fill" data-bs-toggle="tooltip" data-bs-placement="left" title="Submitted but not yet actioned"></em>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ submitted_count }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Approved</div>
+                        <span class="amount">{{ approved_count }}</span>
+                    </div>
+                    <div class="invest-data-history">
+                        <div class="title">Rejected</div>
+                        <span class="amount">{{ rejected_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">My Drafts</h6>
+                </div>
+                <div class="card-tools">
+                    <em class="card-hint-icon icon ni ni-help-fill" data-bs-toggle="tooltip" data-bs-placement="left" title="Your own draft submissions"></em>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ draft_count }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Only visible to you</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+{# --- Regular user stat cards --- #}
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">My Submissions</h6>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ total_submissions }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Submitted</div>
+                        <span class="amount">{{ submitted_count }}</span>
+                    </div>
+                    <div class="invest-data-history">
+                        <div class="title">Approved</div>
+                        <span class="amount">{{ approved_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Drafts In Progress</h6>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ draft_count }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Resume anytime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Approved</h6>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ approved_count }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Rejected</div>
+                        <span class="amount">{{ rejected_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-3 col-sm-6">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group align-start mb-0">
+                <div class="card-title">
+                    <h6 class="subtitle">Available Forms</h6>
+                </div>
+            </div>
+            <div class="card-amount">
+                <span class="amount">{{ published_forms }}</span>
+            </div>
+            <div class="invest-data">
+                <div class="invest-data-amount g-2">
+                    <div class="invest-data-history">
+                        <div class="title">Open to submit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{# ============================================================ #}
+{#  CHARTS ROW                                                   #}
+{# ============================================================ #}
+
+{# --- Submissions over time (both roles) --- #}
+<div class="col-xxl-8">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">
+                        {% if is_form_manager %}Submissions Over Time{% else %}My Activity{% endif %}
+                    </h6>
+                    <p class="text-soft">Last 30 days</p>
+                </div>
+            </div>
+            <div id="chart-submissions-time"></div>
+        </div>
+    </div>
+</div>
+
+{# --- Status distribution donut --- #}
+<div class="col-xxl-4">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Status Breakdown</h6>
+                    <p class="text-soft">
+                        {% if is_form_manager %}All submissions{% else %}My submissions{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div id="chart-status-donut"></div>
+            <div id="chart-status-legend" class="nk-store-statistics mt-3">
+                {# Filled by JS #}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# --- Per-form breakdown (admin only) --- #}
+{% if is_form_manager %}
+<div class="col-12">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Submissions Per Form</h6>
+                    <p class="text-soft">Top 10 forms by submission count (excludes drafts)</p>
+                </div>
+            </div>
+            <div id="chart-per-form"></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ============================================================ #}
+{#  DRAFTS IN PROGRESS (both roles, only shown if drafts exist)  #}
+{# ============================================================ #}
+
+{% if my_drafts %}
+<div class="col-12">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Continue Where You Left Off</h6>
+                    <p class="text-soft">Your draft submissions — only you can see these</p>
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                {% for draft in my_drafts %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card card-bordered h-100">
+                        <div class="card-inner d-flex flex-column h-100">
+                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                <span class="badge badge-dim bg-warning">Draft</span>
+                                <span class="text-soft fs-12px">{{ draft.updated|timesince }} ago</span>
+                            </div>
+                            <h6 class="title mb-1">{{ draft.form.title }}</h6>
+                            {% if draft.form.description %}
+                            <p class="text-soft fs-12px mb-3">{{ draft.form.description|truncatechars:80 }}</p>
+                            {% endif %}
+                            <div class="mt-auto">
+                                <a href="" class="btn btn-primary btn-sm w-100">
+                                    <em class="icon ni ni-edit"></em>
+                                    <span>Resume</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ============================================================ #}
+{#  RECENT SUBMISSIONS TABLE                                     #}
+{# ============================================================ #}
+
+<div class="col-12">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">
+                        {% if is_form_manager %}Recent Submissions{% else %}My Recent Submissions{% endif %}
+                    </h6>
+                </div>
+                <div class="card-tools">
+                    <a href="{% url 'submission-index' %}" class="btn btn-sm btn-outline-light">
+                        View All <em class="icon ni ni-arrow-right"></em>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-inner p-0">
+            <div class="nk-tb-list nk-tb-ulist">
+                <div class="nk-tb-item nk-tb-head">
+                    <div class="nk-tb-col"><span>Form</span></div>
+                    {% if is_form_manager %}
+                    <div class="nk-tb-col tb-col-mb"><span>Owner</span></div>
+                    {% endif %}
+                    <div class="nk-tb-col tb-col-md"><span>Status</span></div>
+                    <div class="nk-tb-col tb-col-lg"><span>Submitted</span></div>
+                    <div class="nk-tb-col tb-col-lg"><span>Last Updated</span></div>
+                    <div class="nk-tb-col nk-tb-col-tools"></div>
+                </div>
+
+                {% for submission in recent_submissions %}
+                <div class="nk-tb-item">
+                    <div class="nk-tb-col">
+                        <div class="user-card">
+                            <div class="user-info">
+                                <span class="tb-lead">{{ submission.form.title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% if is_form_manager %}
+                    <div class="nk-tb-col tb-col-mb">
+                        <span class="tb-sub">
+                            {% if submission.owner %}
+                                {{ submission.owner.get_full_name|default:submission.owner.username }}
+                            {% else %}
+                                <span class="text-soft">Anonymous</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    <div class="nk-tb-col tb-col-md">
+                        {% if submission.status == 'draft' %}
+                            <span class="badge badge-dim bg-warning">Draft</span>
+                        {% elif submission.status == 'submitted' %}
+                            <span class="badge badge-dim bg-info">Submitted</span>
+                        {% elif submission.status == 'approved' %}
+                            <span class="badge badge-dim bg-success">Approved</span>
+                        {% elif submission.status == 'rejected' %}
+                            <span class="badge badge-dim bg-danger">Rejected</span>
+                        {% endif %}
+                    </div>
+                    <div class="nk-tb-col tb-col-lg">
+                        <span class="tb-sub">
+                            {% if submission.submitted_at %}
+                                {{ submission.submitted_at|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-soft">—</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="nk-tb-col tb-col-lg">
+                        <span class="tb-sub">{{ submission.updated|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="nk-tb-col nk-tb-col-tools">
+                        <ul class="nk-tb-actions gx-1">
+                            <li>
+                                <div class="drodown">
+                                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown">
+                                        <em class="icon ni ni-more-h"></em>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <ul class="link-list-opt no-bdr">
+                                            <li>
+                                                <a href="{% url 'submission-detail' submission.uid %}">
+                                                    <em class="icon ni ni-eye"></em>
+                                                    <span>View</span>
+                                                </a>
+                                            </li>
+                                            {% if submission.status == 'draft' and submission.owner == request.user %}
+                                            <li>
+                                                <a href="">
+                                                    <em class="icon ni ni-edit"></em>
+                                                    <span>Resume</span>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                            {% if is_form_manager and submission.status == 'submitted' %}
+                                            <li>
+                                                <a href="">
+                                                    <em class="icon ni ni-check-circle"></em>
+                                                    <span>Approve</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <em class="icon ni ni-cross-circle"></em>
+                                                    <span>Reject</span>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="nk-tb-item">
+                    <div class="nk-tb-col" style="padding: 2rem;">
+                        <div class="text-center text-soft w-100">
+                            <em class="icon ni ni-file-text" style="font-size: 2rem;"></em>
+                            <p class="mt-2">No submissions yet.</p>
+                            {% if not is_form_manager %}
+                            <a href="{% url 'form-index' %}" class="btn btn-sm btn-primary mt-2">Browse Forms</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ============================================================ #}
+{#  AVAILABLE FORMS (user view only)                            #}
+{# ============================================================ #}
+
+{% if not is_form_manager and available_forms %}
+<div class="col-12">
+    <div class="card card-full">
+        <div class="card-inner">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Available Forms</h6>
+                    <p class="text-soft">Published forms open for submission</p>
+                </div>
+                <div class="card-tools">
+                    <a href="{% url 'form-index' %}" class="btn btn-sm btn-outline-light">
+                        View All <em class="icon ni ni-arrow-right"></em>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-inner pt-0">
+            <div class="row g-3">
+                {% for form in available_forms %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card card-bordered h-100">
+                        <div class="card-inner d-flex flex-column h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="user-avatar bg-primary-dim me-3" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                    <em class="icon ni ni-file-text text-primary"></em>
+                                </div>
+                                <h6 class="title mb-0">{{ form.title }}</h6>
+                            </div>
+                            {% if form.description %}
+                            <p class="text-soft fs-12px mb-3">{{ form.description|truncatechars:100 }}</p>
+                            {% endif %}
+                            <div class="mt-auto d-flex gap-2">
+                                <a href="" class="btn btn-primary btn-sm flex-grow-1">
+                                    <em class="icon ni ni-send"></em>
+                                    <span>Start</span>
+                                </a>
+                                <a href="" class="btn btn-outline-light btn-sm">
+                                    <em class="icon ni ni-eye"></em>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts_extra %}
+<script>
+(function () {
+
+    // ── Raw data from Django ──────────────────────────────────────
+    var submissionsOverTime = {{ submissions_over_time|safe }};
+    var statusDistribution  = {{ status_distribution|safe }};
+    {% if is_form_manager %}
+    var perFormBreakdown    = {{ per_form_breakdown|safe }};
+    {% endif %}
+
+    // ── Colour palette (NioBoard primary colours) ─────────────────
+    var colors = {
+        primary:  '#6576ff',
+        success:  '#1ee0ac',
+        warning:  '#f4bd0e',
+        danger:   '#e85347',
+        info:     '#09c2de',
+        gray:     '#8094ae',
+    };
+
+    var statusColors = {
+        draft:     colors.warning,
+        submitted: colors.info,
+        approved:  colors.success,
+        rejected:  colors.danger,
+    };
+
+    // ── 1. Submissions over time — area chart ─────────────────────
+    var timeLabels = submissionsOverTime.map(function(d){ return d.day; });
+    var timeCounts = submissionsOverTime.map(function(d){ return d.count; });
+
+    new ApexCharts(document.getElementById('chart-submissions-time'), {
+        chart:  { type: 'area', height: 220, toolbar: { show: false }, sparkline: { enabled: false } },
+        series: [{ name: 'Submissions', data: timeCounts }],
+        xaxis:  {
+            categories: timeLabels,
+            type: 'datetime',
+            labels: { format: 'dd MMM', style: { colors: colors.gray, fontSize: '11px' } },
+            axisBorder: { show: false }, axisTicks: { show: false },
+        },
+        yaxis:  { labels: { style: { colors: colors.gray, fontSize: '11px' } }, min: 0 },
+        colors: [colors.primary],
+        fill:   { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 100] } },
+        stroke: { curve: 'smooth', width: 2 },
+        dataLabels: { enabled: false },
+        grid:   { borderColor: '#e5e9f2', strokeDashArray: 4 },
+        tooltip: { x: { format: 'dd MMM yyyy' } },
+    }).render();
+
+    // ── 2. Status distribution — donut chart ─────────────────────
+    var statusLabels = statusDistribution.map(function(d){
+        return d.status.charAt(0).toUpperCase() + d.status.slice(1);
+    });
+    var statusCounts = statusDistribution.map(function(d){ return d.count; });
+    var statusFills  = statusDistribution.map(function(d){
+        return statusColors[d.status] || colors.gray;
+    });
+
+    new ApexCharts(document.getElementById('chart-status-donut'), {
+        chart:   { type: 'donut', height: 200, toolbar: { show: false } },
+        series:  statusCounts,
+        labels:  statusLabels,
+        colors:  statusFills,
+        legend:  { show: false },
+        dataLabels: { enabled: false },
+        plotOptions: { pie: { donut: { size: '65%', labels: {
+            show: true,
+            total: { show: true, label: 'Total', color: colors.gray,
+                formatter: function(w){ return w.globals.seriesTotals.reduce(function(a,b){ return a+b; }, 0); }
+            }
+        } } } },
+        tooltip: { y: { formatter: function(v){ return v + ' submissions'; } } },
+    }).render();
+
+    // Build legend manually using NioBoard classes
+    var legendEl = document.getElementById('chart-status-legend');
+    statusDistribution.forEach(function(item){
+        var label = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+        var col   = statusColors[item.status] || colors.gray;
+        legendEl.innerHTML +=
+            '<div class="item d-flex align-items-center justify-content-between mb-1">' +
+            '  <div class="info d-flex align-items-center">' +
+            '    <div class="dot" style="background:' + col + ';width:8px;height:8px;border-radius:50%;margin-right:8px;"></div>' +
+            '    <span class="text-soft fs-12px">' + label + '</span>' +
+            '  </div>' +
+            '  <span class="fw-bold fs-13px">' + item.count + '</span>' +
+            '</div>';
+    });
+
+    {% if is_form_manager %}
+    // ── 3. Per-form breakdown — horizontal bar chart (admin only) ─
+    var formLabels = perFormBreakdown.map(function(d){ return d.form; });
+    var formCounts = perFormBreakdown.map(function(d){ return d.count; });
+
+    new ApexCharts(document.getElementById('chart-per-form'), {
+        chart:  { type: 'bar', height: 280, toolbar: { show: false } },
+        series: [{ name: 'Submissions', data: formCounts }],
+        xaxis:  {
+            categories: formLabels,
+            labels: { style: { colors: colors.gray, fontSize: '12px' } },
+            axisBorder: { show: false }, axisTicks: { show: false },
+        },
+        yaxis:  { labels: { style: { colors: colors.gray, fontSize: '11px' } } },
+        colors: [colors.primary],
+        plotOptions: { bar: { borderRadius: 4, columnWidth: '50%' } },
+        dataLabels: { enabled: false },
+        grid:   { borderColor: '#e5e9f2', strokeDashArray: 4 },
+        tooltip: { y: { formatter: function(v){ return v + ' submissions'; } } },
+    }).render();
+    {% endif %}
+
+})();
+</script>
+{% endblock %}

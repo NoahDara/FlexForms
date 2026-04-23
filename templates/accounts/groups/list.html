@@ -1,0 +1,151 @@
+{% extends 'layouts/base.html' %}
+
+{% load auth %}
+
+{% block title %}Groups{% endblock %}
+{% block page_title %}Groups{% endblock %}
+{% block page_sub_title %}Manage user groups and their permissions{% endblock %}
+
+{% block actions %}
+{% if perms.auth.add_group %}
+<li class="nk-block-tools-opt">
+    <a href="{% url 'group-create' %}" class="btn btn-primary">
+        <em class="icon ni ni-plus"></em>
+        <span>New Group</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <div class="card card-full">
+        <div class="card-inner p-0">
+            <div class="nk-tb-list nk-tb-ulist">
+
+                {# ── Table head ── #}
+                <div class="nk-tb-item nk-tb-head">
+                    <div class="nk-tb-col"><span>Group Name</span></div>
+                    <div class="nk-tb-col tb-col-md"><span>Permissions</span></div>
+                    <div class="nk-tb-col tb-col-lg"><span>Members</span></div>
+                    <div class="nk-tb-col nk-tb-col-tools"></div>
+                </div>
+
+                {% for group in groups %}
+                <div class="nk-tb-item">
+
+                    {# Name #}
+                    <div class="nk-tb-col">
+                        <div class="user-card">
+                            <div class="user-avatar bg-primary-dim"
+                                 style="width:36px;height:36px;border-radius:8px;
+                                        display:flex;align-items:center;
+                                        justify-content:center;font-weight:600;
+                                        font-size:14px;">
+                                <span class="text-primary">
+                                    {{ group.name|first|upper }}
+                                </span>
+                            </div>
+                            <div class="user-info ms-2">
+                                <span class="tb-lead">{{ group.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Permission summary #}
+                    <div class="nk-tb-col tb-col-md">
+                        <span class="text-soft fs-12px">
+                            {{ group.permissions.all|length}}
+                        </span>
+                    </div>
+
+                    {# Member avatars + count #}
+                    <div class="nk-tb-col tb-col-lg">
+                        <div class="d-flex align-items-center">
+                            {# Show up to 4 initials avatars #}
+                            <div class="d-flex" style="margin-right:8px;">
+                                {% for user in group.preview_members|slice:":4" %}
+                                <div title="{{ user.get_full_name|default:user.username }}"
+                                     style="width:28px;height:28px;border-radius:50%;
+                                            display:flex;align-items:center;
+                                            justify-content:center;font-size:11px;
+                                            font-weight:600;margin-left:-6px;
+                                            border:2px solid #fff;
+                                            background:{{ forloop.counter|avatar_color }};">
+                                    <span style="color:#fff;">
+                                        {{ user.get_full_name|default:user.username|first|upper }}
+                                    </span>
+                                </div>
+                                {% empty %}
+                                <span class="text-soft fs-12px">No members</span>
+                                {% endfor %}
+                            </div>
+                            {# Total count #}
+                            {% with total=group.user_set.count %}
+                            {% if total > 0 %}
+                            <span class="text-soft fs-12px">
+                                {{ total }} member{{ total|pluralize }}
+                            </span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    {# Row actions #}
+                    <div class="nk-tb-col nk-tb-col-tools">
+                        <ul class="nk-tb-actions gx-1">
+                            <li>
+                                <div class="drodown">
+                                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger"
+                                       data-bs-toggle="dropdown">
+                                        <em class="icon ni ni-more-h"></em>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <ul class="link-list-opt no-bdr">
+                                            {% if perms.auth.change_group %}
+                                            <li>
+                                                <a href="{% url 'group-update' group.pk %}">
+                                                    <em class="icon ni ni-edit"></em>
+                                                    <span>Edit</span>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                            {% if perms.auth.delete_group %}
+                                            <li>
+                                                <a href="{% url 'group-delete' group.pk %}"
+                                                   class="text-danger">
+                                                    <em class="icon ni ni-trash"></em>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                {% empty %}
+                <div class="nk-tb-item">
+                    <div class="nk-tb-col" style="padding:3rem;">
+                        <div class="text-center text-soft w-100">
+                            <em class="icon ni ni-users" style="font-size:2.5rem;"></em>
+                            <p class="mt-2 mb-3">No groups have been created yet.</p>
+                            {% if perms.auth.add_group %}
+                            <a href="{% url 'group-create' %}"
+                               class="btn btn-primary btn-sm">
+                                Create your first group
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

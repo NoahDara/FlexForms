@@ -10,15 +10,15 @@
         </a>
       </div>
       <div class="nk-header-brand">
-        <a href="index.html" class="logo-link">
-          <img class="logo-light logo-img" src="{% static 'assets/images/logo.png' %}" srcset="{% static 'assets/images/logo.png' %}g 2x"alt="logo" />
+        <a href="{% static 'assets/images/logo.png' %}" class="logo-link">
+          <img class="logo-light logo-img" src="{% static 'assets/images/logo.png' %}" srcset="{% static 'assets/images/logo.png' %} 2x"alt="logo" />
           <img class="logo-dark logo-img"  src="{% static 'assets/images/logo.png' %}" srcset="{% static 'assets/images/logo.png' %} 2x" alt="logo-dark"
         /></a>
       </div>
       <div class="nk-header-menu" data-content="headerNav">
         <div class="nk-header-mobile">
           <div class="nk-header-brand">
-            <a href="index.html" class="logo-link">
+            <a href="{% static 'assets/images/logo.png' %}" class="logo-link">
               <img class="logo-light logo-img" src="{% static 'assets/images/logo.png' %}" srcset="{% static 'assets/images/logo.png' %}g 2x" alt="logo" />
               <img class="logo-dark logo-img" src="{% static 'assets/images/logo.png' %}" srcset="{% static 'assets/images/logo.png' %} 2x" alt="logo-dark"/>
             </a>
@@ -31,18 +31,13 @@
         </div>
         <ul class="nk-menu nk-menu-main ui-s2">
 
-          {% comment %} <li class="nk-menu-item has-sub">
-            <a href="#" class="nk-menu-link nk-menu-toggle">
-              <span class="nk-menu-text">Dashboards</span>
+
+
+          <li class="nk-menu-item">
+            <a href="{% url "dashboard" %}" class="nk-menu-link">
+              <span class="nk-menu-text">Home</span>
             </a >
-            <ul class="nk-menu-sub">
-              <li class="nk-menu-item">
-                <a href="index.html" class="nk-menu-link" >
-                  <span class="nk-menu-text">Default Dashboard</span>
-                </a>
-              </li>
-            </ul>
-          </li> {% endcomment %}
+          </li>
 
           <li class="nk-menu-item">
             <a href="{% url "form-index" %}" class="nk-menu-link">
@@ -56,11 +51,11 @@
             </a >
           </li>
 
-          <li class="nk-menu-item">
+          {% comment %} <li class="nk-menu-item">
             <a href="{% url "dashboard" %}" class="nk-menu-link">
               <span class="nk-menu-text">Dashboard</span>
             </a >
-          </li>
+          </li> {% endcomment %}
 
           <li class="nk-menu-item">
             <a href="{% url "data-type-index" %}" class="nk-menu-link">
@@ -79,6 +74,24 @@
               <span class="nk-menu-text">Tables Management</span>
             </a >
           </li>
+
+          <li class="nk-menu-item has-sub">
+            <a href="#" class="nk-menu-link nk-menu-toggle">
+              <span class="nk-menu-text">Admin Center</span>
+            </a >
+            <ul class="nk-menu-sub">
+              <li class="nk-menu-item">
+                <a href="{% url "group-index" %}" class="nk-menu-link" >
+                  <span class="nk-menu-text">Groups</span>
+                </a>
+              </li>
+              <li class="nk-menu-item">
+                <a href="{% url "users-index" %}" class="nk-menu-link" >
+                  <span class="nk-menu-text">System Users</span>
+                </a>
+              </li>
+            </ul>
+          </li> 
 
         </ul>
       </div>

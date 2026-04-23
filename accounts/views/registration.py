@@ -77,13 +77,13 @@ class LoginUserView(FormView):
 
 class UserListView(LoginRequiredMixin, ListView, ):
     model = User
-    template_name = "registration/index.html"
+    template_name = "accounts/index.html"
 
 
 def register_user(request):
     if request.method == "GET":
         return render(
-            request, "registration/create.html", {"form": CustomUserCreationForm}
+            request, "accounts/create.html", {"form": CustomUserCreationForm}
         )
     elif request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -105,8 +105,8 @@ class UserUpdateView(SuccessMessageMixin, UpdateView):
     def get_template_names(self):
         user = self.get_object()
         if self.request.user.is_superuser:
-            return ["registration/update.html"]
-        return ["registration/self_update.html"]
+            return ["accounts/update.html"]
+        return ["accounts/self_update.html"]
         
 
     def get_success_url(self):

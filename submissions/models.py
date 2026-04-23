@@ -55,16 +55,17 @@ class FormSubmission(BaseModel):
     }
     """
 
-    form = models.ForeignKey("forms.Form", on_delete=models.CASCADE,  related_name="submissions",  help_text="The form that was submitted",)
-    status = models.CharField(max_length=100, default="draft")
-    submitted_at = models.DateTimeField(auto_now_add=True,  help_text="Timestamp of when the form was submitted",)
-    response = models.JSONField(default=dict, blank=True,
-        help_text=(
-            "The complete submission response stored as structured JSON. "
-            "Grouped by section. Ungrouped fields sit under 'ungrouped'. "
-            "See model docstring for full structure reference."
-        ),
-    )
+    class SubmissionStatus(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        SUBMITTED = 'submitted', 'Submitted'
+        APPROVED = 'approved', 'Approved'
+        REJECTED = 'rejected', 'Rejected'
+
+    form = models.ForeignKey("forms.Form", on_delete=models.CASCADE, related_name="submissions")
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="submissions")
+    status = models.CharField(max_length=100, choices=SubmissionStatus.choices, default=SubmissionStatus.DRAFT)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    response = models.JSONField(default=dict, blank=True)
 
 
     def __str__(self):
