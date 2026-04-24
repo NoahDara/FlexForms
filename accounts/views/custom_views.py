@@ -1,32 +1,12 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView, TemplateView
-from django.views import View
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
 from django.http.response import HttpResponse as HttpResponse
-from django.shortcuts import get_object_or_404
-from accounts.models import CustomUser as User
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.views import PasswordResetView
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.contrib.auth.views import PasswordResetView
-from django.contrib.auth import authenticate, login
-from django.urls import reverse_lazy
-from django.views.generic import FormView
-from django.shortcuts import redirect
-from django.contrib.auth.hashers import make_password
-from django.urls import reverse
-from django.views.generic.edit import UpdateView
-from ..forms import CustomUserCreationForm, CustomUserUpdateForm, LoginForm
-from django.contrib.auth import logout
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 
 

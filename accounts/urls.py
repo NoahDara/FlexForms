@@ -12,11 +12,11 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 
-    path('users-index', UserListView.as_view(), name="users-index"),
-    path('register-user', views.register_user, name="register-user"),
-    path('update-user/<int:pk>/', UserUpdateView.as_view(), name="update-user"),
-    path('delete-user/', UserDeleteView.as_view(), name="delete-user"),
-    path('deactivate-user/<int:pk>/', views.UserDeactivateView.as_view(), name="deactivate-user"),
+    path('users', UserListView.as_view(), name="users-index"),
+    path('/user/create/', views.UserCreateView.as_view(), name="register-user"),
+    path('user/<int:pk>/update/', UserUpdateView.as_view(), name="update-user"),
+    path('user/delete/', UserDeleteView.as_view(), name="delete-user"),
+    path('user/<int:pk>/deactivate', views.UserDeactivateView.as_view(), name="deactivate-user"),
     
     path('groups/', include('accounts.groups_urls')),
 

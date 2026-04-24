@@ -6,7 +6,7 @@ from .registration import (
     LoginUserView,
     logout_view,
     UserListView,
-    register_user,
+    UserCreateView,
     UserUpdateView,
     UserDeleteView,
     UserDeactivateView,

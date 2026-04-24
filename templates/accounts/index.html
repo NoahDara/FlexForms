@@ -67,7 +67,7 @@
             <a href="#" data-bs-toggle="modal" data-bs-target="#userToggleModal{{ obj.pk }}" class="btn btn-dim btn-outline-warning btn-sm">
               {% if obj.is_active %}Deactivate{% else %}Activate{% endif %}
             </a>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#userDeleteModal{{ obj.pk }}" class="btn btn-dim btn-outline-danger btn-sm">Delete</a>
+            {% comment %} <a href="#" data-bs-toggle="modal" data-bs-target="#userDeleteModal{{ obj.pk }}" class="btn btn-dim btn-outline-danger btn-sm">Delete</a> {% endcomment %}
           </td>
         </tr>
         {% empty %}

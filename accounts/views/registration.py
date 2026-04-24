@@ -1,29 +1,17 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView, TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView, TemplateView, CreateView, FormView
 from django.views import View
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http.response import HttpResponse as HttpResponse
-from django.shortcuts import get_object_or_404
-from accounts.models import CustomUser as User
-from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.contrib.auth.views import PasswordResetView
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth import authenticate, login
-from django.urls import reverse_lazy
-from django.views.generic import FormView
-from django.shortcuts import redirect
 from django.contrib.auth.hashers import make_password
-from django.urls import reverse
-from django.views.generic.edit import UpdateView
-from ..forms import CustomUserCreationForm, CustomUserUpdateForm, LoginForm
+from ..forms import CustomUserCreationForm, LoginForm
 from django.contrib.auth import logout
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -80,51 +68,25 @@ class UserListView(LoginRequiredMixin, ListView, ):
     template_name = "accounts/index.html"
 
 
-def register_user(request):
-    if request.method == "GET":
-        return render(
-            request, "accounts/create.html", {"form": CustomUserCreationForm}
-        )
-    elif request.method == "POST":
-        form = CustomUserCreationForm(request.POST)
-    if form.is_valid():
-        form.save()
-        messages.success(request, ("User created successfully"))
-        return redirect("users-index")
-    else:
-        messages.success(request, ("Something went wrong please try again"))
-        return redirect("register-user")
-
-
-class UserUpdateView(SuccessMessageMixin, UpdateView):
+class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = User
-    form_class = CustomUserUpdateForm
+    form_class = CustomUserCreationForm
+    template_name = "accounts/create.html"
+    
+    def get_success_url(self):
+        return reverse("users-index")
+
+
+class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = User
+    form_class = CustomUserCreationForm
     success_message = "User updated successfully"
     context_object_name = "user"
-
-    def get_template_names(self):
-        user = self.get_object()
-        if self.request.user.is_superuser:
-            return ["accounts/update.html"]
-        return ["accounts/self_update.html"]
-        
-
+    template_name = "accounts/update.html" 
+    
     def get_success_url(self):
-        user = self.get_object()
-        if self.request.user.is_superuser:
-            return reverse("users-index")
-        return reverse("dashboard")
+        return reverse("users-index")   
         
-
-    def form_valid(self, form):
-        password = form.cleaned_data.get("password")
-        if password:
-            form.instance.password = make_password(password)
-
-        return super().form_valid(form)
-
-    # def get_required_permissions(self):
-    #     return ['Can change user']
 
 class UserDeleteView(LoginRequiredMixin, TemplateView):
     def get(self, request, **kwargs):
